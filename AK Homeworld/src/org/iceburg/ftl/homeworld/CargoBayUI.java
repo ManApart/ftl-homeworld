@@ -133,16 +133,16 @@ public class CargoBayUI extends JPanel {
 		add(cargoAugCB);
 		
 		//TODO
-		//Convert do list to string array for combo box
-		ArrayList<String> shipAugList = new ArrayList<String>();
+		//Convert drone list to string array for combo box
+		ArrayList<String> shipDroneList = new ArrayList<String>();
 		for (WeaponState w: currentState.getWeaponList()) {
 			String s = DataManager.get().getWeapon(w.getWeaponId()).getTitle();
-			shipAugList.add(s);
+			shipDroneList.add(s);
 		}
 		//display shipAugment names 
-		JComboBox shipAugCB = new JComboBox(shipAugList.toArray());
+		JComboBox shipDroneCB = new JComboBox(shipDroneList.toArray());
 		shipAugCB.setBounds(1010, 530, 200, 20);
-		add(shipAugCB);
+		add(shipDroneCB);
 		
 	}
 }

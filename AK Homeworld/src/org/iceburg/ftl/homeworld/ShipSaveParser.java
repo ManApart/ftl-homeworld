@@ -29,9 +29,9 @@ import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 
 //TODO
 //move save_location finder to FTLHomeworld
+//Open custom folder for save location
+//Ships the same size
 public class ShipSaveParser extends Parser{
-
-	public static File save_location = null;
 	
 	public ShipSave readShipSave(File sav)  {
 		//private static final Logger log = LogManager.getLogger(ShipSaveParser.class);
@@ -103,16 +103,7 @@ public class ShipSaveParser extends Parser{
 
 
 	public static ShipSave[] getShipsList() {
-		if (ShipSaveParser.save_location == null){
-			File folder = null;
-			for ( File file : FTLHomeworld.getPossibleUserDataLocations("prof.sav") ) {
-			      if ( file.exists() ) {
-			        folder = file.getParentFile();
-			        break;
-			      }
-			}
-		}
-		File[] fileList = ShipSaveParser.save_location.listFiles(new FilenameFilter() {
+		File[] fileList = FTLHomeworld.save_location.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return (name.toLowerCase().endsWith(".sav") && !name.contains("prof") );
 			}
@@ -137,7 +128,7 @@ public class ShipSaveParser extends Parser{
 		int i = 1;
 		while (oldFile.exists() && i < 50) {
 			fileName = "continue_" + i + ".sav";
-			newFile = new File(ShipSaveParser.save_location, fileName);
+			newFile = new File(FTLHomeworld.save_location, fileName);
 			if (!newFile.exists()) {
 				//success = oldFile.renameTo(newFile);
 				
@@ -163,7 +154,7 @@ public class ShipSaveParser extends Parser{
 	public boolean boardShip(ShipSave ss1) {
 		boolean success = false;
 		File oldFile = ss1.getshipFilePath();
-		File newFile =  new File(ShipSaveParser.save_location, "continue.sav");
+		File newFile =  new File(FTLHomeworld.save_location, "continue.sav");
 		if (!newFile.exists()) {
 			//success = oldFile.renameTo(newFile);
 			

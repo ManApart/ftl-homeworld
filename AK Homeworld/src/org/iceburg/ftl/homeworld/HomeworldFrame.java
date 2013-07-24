@@ -2,6 +2,7 @@ package org.iceburg.ftl.homeworld;
 
 import java.awt.BorderLayout;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -23,7 +24,7 @@ public class HomeworldFrame extends JFrame {
 	 */
 	public HomeworldFrame() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(800, 700);
+		setSize(900, 720);
 		setTitle("FTL Homeworld");
 		JTabbedPane tasksPane = new JTabbedPane();
 		contentPane = new JPanel();
@@ -31,7 +32,7 @@ public class HomeworldFrame extends JFrame {
 		setContentPane(contentPane);
 		contentPane.add( tasksPane, BorderLayout.CENTER );
 
-		SpaceDockUI spaceDock = new SpaceDockUI();
+		spaceDock = new SpaceDockUI();
 		JScrollPane spaceDockPane = new JScrollPane(spaceDock);
 		
 		spaceDockPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -48,7 +49,8 @@ public class HomeworldFrame extends JFrame {
 		cargoBayPane.setOpaque(false);
 		cargoBayPane.getViewport().setOpaque(false);	
 		tasksPane.add( "Cargo Bay", cargoBayPane);
-
+		
+		
 		//use this to refresh tabs on tab change
 		tasksPane.addChangeListener(new ChangeListener() {
 				@Override    

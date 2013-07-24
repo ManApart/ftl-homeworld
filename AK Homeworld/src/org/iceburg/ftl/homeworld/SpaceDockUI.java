@@ -14,6 +14,7 @@ import org.iceburg.ftl.homeworld.ShipSaveParser.ShipSave;
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -32,6 +33,10 @@ import javax.swing.JLabel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+//TODO
+//Save new saves folder location to cfg
+//Refresh tab (in case folder changed while program open)
+//Button to launch FTL from
 public class SpaceDockUI extends JPanel {
 
 	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
@@ -42,6 +47,9 @@ public class SpaceDockUI extends JPanel {
 	private HashMap<String,BufferedImage> imageCache;
 	BufferedImage bg  = null;
 	ImageIcon img = null;
+	JButton loadSavesbtn = null;
+	JButton refreshbtn = null;
+	JButton launchbtn = null;
 	
     @Override
     public void paintComponent(Graphics g) {
@@ -68,21 +76,45 @@ public class SpaceDockUI extends JPanel {
 	 * Create the application.
 	 */
 	public SpaceDockUI() {
+		this.init();
+	}
+	
+	public void init() {
 		//initializ - get ships/file to display
+		this.removeAll();
 		this.myShips = ShipSaveParser.getShipsList();
 		if (myShips.length > 0);
 		{
 			this.buttonList = new JButton[myShips.length];
 			File currentFile = 
-	   				new File(myShips[0].getshipFilePath().getParentFile() + "continue.sav");
+	   				new File(FTLHomeworld.save_location + "\\continue.sav");
 			this.currentShip = ShipSaveParser.findCurrentShip(myShips, currentFile);
 		}	
 		imageCache = new HashMap<String, BufferedImage>();
+		setLayout(new GridLayout(0, 2, 0, 0));
+		
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new GridLayout(0, 2, 0, 0));
-		setLayout(new GridLayout(0, 2, 0, 0));
 		subPanel.setOpaque(false);
 		setOpaque(false);
+		
+		//for misc buttons
+		JPanel rightPanel = new JPanel();
+		rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+		rightPanel.setOpaque(false);
+		setOpaque(false);
+		
+		launchbtn = new JButton("Launch FTL");
+		launchbtn.addActionListener(new SaveFolderListener());
+		//rightPanel.add(launchbtn);
+		
+		refreshbtn = new JButton("Refresh");
+		refreshbtn.addActionListener(new SaveFolderListener());
+		rightPanel.add(refreshbtn);
+		
+		loadSavesbtn = new JButton("Saves Folder");
+		loadSavesbtn.addActionListener(new SaveFolderListener());
+		rightPanel.add(loadSavesbtn);
 		
 		for (int i = 0; i < myShips.length; i++) {			
 			//create panel/ basic data
@@ -113,6 +145,11 @@ public class SpaceDockUI extends JPanel {
 			JLabel lblShipID = new JLabel("", new ImageIcon(baseImage), JLabel.CENTER);
 			loopPanel.add(lblShipID);
 			
+			//add rigid space below picture so buttons line up
+			if (baseImage.getHeight() < 150) {
+				loopPanel.add(Box.createRigidArea(new Dimension(25, (150 - baseImage.getHeight()))));
+			}
+			
 			//add the board / dock button
 			if (myShips[i] == this.currentShip) {
 				buttonList[i] =  new JButton("Dock");		
@@ -130,6 +167,44 @@ public class SpaceDockUI extends JPanel {
 			subPanel.add(loopPanel);
 		}
 		add(subPanel);
+		add(rightPanel);
+	}
+	class SaveFolderListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			JButton o = (JButton) e.getSource();
+			if (o.equals(loadSavesbtn)) {
+				//System.out.println("save folders");
+				File newSaves = FTLHomeworld.promptForSavePath();
+				if (newSaves != null){FTLHomeworld.save_location = newSaves;}
+				init();
+			}
+			else if (o.equals(refreshbtn)) {
+				//System.out.println("Refreshed");
+				init();
+				
+			}
+			else if (o.equals(launchbtn)) {
+				//TODO - launch game
+				System.out.println("launched");
+				//File gameFolder = new File(FTLHomeworld.datsPath.getParentFile() + "\\");
+				String command = new String(FTLHomeworld.datsPath.getParentFile() + "\\FTLGame.exe" );
+				
+				try {
+				//Runtime.getRuntime().exec("FTLGame.exe", null, gameFolder);
+					Runtime.getRuntime().exec(command);
+					
+					//This launches and the immediatly exits FTL
+//					ProcessBuilder pb = new ProcessBuilder(command);
+//					pb.start();
+					
+					
+				} catch (IOException e1) {
+					// Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			
+		}
 	}
 	
 	class BoardListener implements ActionListener {
@@ -196,7 +271,7 @@ public class SpaceDockUI extends JPanel {
 	
 	private BufferedImage scaleImage(BufferedImage image) {		 
 		 BufferedImage scaledBI = null;
-		 if (image.getWidth() > 200 || image.getHeight() > 130) {
+		 if (image.getWidth() > 191 || image.getHeight() > 121) {
 		    	int scaledWidth = 0;
 		    	int scaledHeight = 0;
 		    	if (image.getWidth() > image.getHeight()){

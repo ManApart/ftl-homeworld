@@ -46,15 +46,15 @@ import org.apache.logging.log4j.Logger;
 
 public class FTLHomeworld {
 	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
-	
-	
+	public static File save_location = null;
+	public static File datsPath = null;	
 	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		File propFile = new File("ftl-homeworld.cfg");
-		File datsPath = null;
+		
 		boolean writeConfig = false;
 		Properties config = new Properties();
 		ImageIO.setUseCache(false);  // Small images don't need extra buffering.
@@ -92,7 +92,21 @@ public class FTLHomeworld {
 		}
 		
 
-		// Find/prompt for the path to set in the config.
+		//FTL Save Path.
+		String savePathString = config.getProperty("ftlSavePath");
+
+		if ( savePathString != null ) {
+			log.info( "Using FTL dats path from config: " + savePathString );
+			save_location = new File(savePathString);
+			if ( isSavePathValid(save_location) == false ) {
+				log.error( "The config's ftlSavePath does not exist." );
+				save_location = null;
+			}
+		} else {
+			log.trace( "No FTL save path previously set." );
+		}
+		
+		// Find/prompt for the dats path to set in the config.
 		if ( datsPath == null ) {
 			datsPath = findFtlPath();
 			if ( datsPath != null ) {
@@ -111,17 +125,47 @@ public class FTLHomeworld {
 				log.info( "FTL dats located at: " + datsPath.getAbsolutePath() );
 			}
 		}
-
 		if ( datsPath == null ) {
-			showErrorDialog( "FTL data was not found.\nFTL Profile Editor will now exit." );
+			showErrorDialog( "FTL dats path was not found.\nFTL Homeworld will now exit." );
 			log.debug( "No FTL dats path found, exiting." );
+			System.exit(1);
+		}
+		
+		// Find/prompt for the save path to set in the config.
+		if ( save_location == null ) {
+			for ( File file : FTLHomeworld.getPossibleUserDataLocations("prof.sav") ) {
+			      if ( file.exists() ) {
+			    	  save_location = file.getParentFile();
+			        break;
+			      }
+			}
+			if ( save_location != null ) {
+				int response = JOptionPane.showConfirmDialog(null, "FTL saves were found in:\n"+ save_location.getPath() +"\nIs this correct?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if ( response == JOptionPane.NO_OPTION ) save_location = null;
+			}
+
+			if ( save_location == null ) {
+				log.debug("FTL saves path was not located automatically. Prompting user for location.");
+				save_location = promptForSavePath();
+			}
+
+			if ( save_location != null ) {
+				config.setProperty( "ftlSavePath", save_location.getAbsolutePath() );
+				writeConfig = true;
+				log.info( "FTL saves located at: " + save_location.getAbsolutePath() );
+			}
+		}
+
+		if ( save_location == null ) {
+			showErrorDialog( "FTL save folder was not found.\nFTL Homeworld will now exit." );
+			log.debug( "No FTL save path found, exiting." );
 			System.exit(1);
 		}
 		OutputStream out = null;
 		if ( writeConfig ) {
 			try {
 				out = new FileOutputStream(propFile);
-				config.store( out, "FTL Profile Editor - Config File" );
+				config.store( out, "FTL Homeworld - Config File" );
 
 			} catch (IOException e) {
 				log.error( "Error saving config to " + propFile.getPath(), e );
@@ -171,6 +215,9 @@ public class FTLHomeworld {
 		private static boolean isDatsPathValid(File path) {
 			return (path.exists() && path.isDirectory() && new File(path,"data.dat").exists());
 		}
+		private static boolean isSavePathValid(File path) {
+			return (path.exists() && path.isDirectory());
+		}
 		
 		private static File promptForFtlPath() {
 			File ftlPath = null;
@@ -211,6 +258,43 @@ public class FTLHomeworld {
 			}
 
 			if ( ftlPath != null && isDatsPathValid(ftlPath) ) {
+				return ftlPath;
+			}
+
+			return null;
+		}
+		static File promptForSavePath() {
+			File ftlPath = null;
+
+			String message = "FTL Homeworld manages saves from FTL,\n";
+			message += "but the path to FTL's saves could not be guessed.\n\n";
+			message += "You will now be prompted to locate them manually.\n";
+			message += "Select '/Documents/My Games/FasterThanLight/continue.sav'\n";
+			JOptionPane.showMessageDialog(null,  message, "FTL Save Not Found", JOptionPane.INFORMATION_MESSAGE);
+
+			final JFileChooser fc = new JFileChooser();
+			fc.setDialogTitle( "Find continue.sav" );
+			fc.addChoosableFileFilter( new FileFilter() {
+				@Override
+				public String getDescription() {
+					return "FTL Data File - /Documents/My Games/FasterThanLight/continue.sav";
+				}
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory() || f.getName().equals("continue.sav") || f.getName().equals("prof.sav");
+				}
+			});
+			fc.setMultiSelectionEnabled(false);
+
+			if ( fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ) {
+				File f = fc.getSelectedFile();
+				ftlPath = f.getParentFile();
+				log.trace( "User selected: " + ftlPath.getAbsolutePath() );
+			} else {
+				log.trace( "User cancelled FTL dats path selection." );
+			}
+
+			if ( ftlPath != null && isSavePathValid(ftlPath) ) {
 				return ftlPath;
 			}
 
