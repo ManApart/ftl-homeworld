@@ -25,8 +25,14 @@ import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 //I'm especially indebted to Vhati who gave me permission to use the code as well as answered my questions as I worked through my first java program.
 
 //Used to select save file
+
+
+//TODO
+//move save_location finder to FTLHomeworld
 public class ShipSaveParser extends Parser{
 
+	public static File save_location = null;
+	
 	public ShipSave readShipSave(File sav)  {
 		//private static final Logger log = LogManager.getLogger(ShipSaveParser.class);
 		FileInputStream in = null;
@@ -97,8 +103,16 @@ public class ShipSaveParser extends Parser{
 
 
 	public static ShipSave[] getShipsList() {
-		File folder = new File(System.getProperty("user.dir"));
-		File[] fileList = folder.listFiles(new FilenameFilter() {
+		if (ShipSaveParser.save_location == null){
+			File folder = null;
+			for ( File file : FTLHomeworld.getPossibleUserDataLocations("prof.sav") ) {
+			      if ( file.exists() ) {
+			        folder = file.getParentFile();
+			        break;
+			      }
+			}
+		}
+		File[] fileList = ShipSaveParser.save_location.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return (name.toLowerCase().endsWith(".sav") && !name.contains("prof") );
 			}
@@ -114,15 +128,16 @@ public class ShipSaveParser extends Parser{
 	}
 	
 	
+	
 	public boolean dockShip(ShipSave ss1) {
 		boolean success = false;
 		File oldFile = ss1.getshipFilePath();
 		File newFile = null;
 		String fileName;
 		int i = 1;
-		while (oldFile.exists() && i < 10) {
+		while (oldFile.exists() && i < 50) {
 			fileName = "continue_" + i + ".sav";
-			newFile = new File(fileName);
+			newFile = new File(ShipSaveParser.save_location, fileName);
 			if (!newFile.exists()) {
 				//success = oldFile.renameTo(newFile);
 				
@@ -148,7 +163,7 @@ public class ShipSaveParser extends Parser{
 	public boolean boardShip(ShipSave ss1) {
 		boolean success = false;
 		File oldFile = ss1.getshipFilePath();
-		File newFile = new File("continue.sav");
+		File newFile =  new File(ShipSaveParser.save_location, "continue.sav");
 		if (!newFile.exists()) {
 			//success = oldFile.renameTo(newFile);
 			

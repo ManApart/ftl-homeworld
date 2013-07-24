@@ -69,20 +69,20 @@ public class SpaceDockUI extends JPanel {
 	 */
 	public SpaceDockUI() {
 		//initializ - get ships/file to display
-		myShips = ShipSaveParser.getShipsList();
-		buttonList = new JButton[myShips.length];
-		File currentFile = 
-   				new File(myShips[0].getshipFilePath().getParentFile() + "\\continue.sav");
-		currentShip = ShipSaveParser.findCurrentShip(myShips, currentFile);
+		this.myShips = ShipSaveParser.getShipsList();
+		if (myShips.length > 0);
+		{
+			this.buttonList = new JButton[myShips.length];
+			File currentFile = 
+	   				new File(myShips[0].getshipFilePath().getParentFile() + "continue.sav");
+			this.currentShip = ShipSaveParser.findCurrentShip(myShips, currentFile);
+		}	
 		imageCache = new HashMap<String, BufferedImage>();
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new GridLayout(0, 2, 0, 0));
 		setLayout(new GridLayout(0, 2, 0, 0));
 		subPanel.setOpaque(false);
 		setOpaque(false);
-		
-				
-		//ImageIO.setUseCache(false);  // Small images don't need extra buffering.
 		
 		for (int i = 0; i < myShips.length; i++) {			
 			//create panel/ basic data
@@ -114,7 +114,7 @@ public class SpaceDockUI extends JPanel {
 			loopPanel.add(lblShipID);
 			
 			//add the board / dock button
-			if (myShips[i].getshipFilePath().equals(currentFile)) {
+			if (myShips[i] == this.currentShip) {
 				buttonList[i] =  new JButton("Dock");		
 			}
 			else {
@@ -142,7 +142,7 @@ public class SpaceDockUI extends JPanel {
 			if (sourceButton.getText().equals("Dock")) {
 	    	   sourceButton.setText("Board");	    	   
 	    	   parser.dockShip(myShips[i]);
-	    	   currentShip = myShips[i];
+	    	   currentShip = null;
 	    	   
 			} else if (sourceButton.getText().equals("Board")) {
 	    	   sourceButton.setText("Dock");

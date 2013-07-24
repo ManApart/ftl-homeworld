@@ -251,4 +251,24 @@ public class FTLHomeworld {
 			return ftlPath;
 		}
 	
+		public static File[] getPossibleUserDataLocations( String fileName ) {
+		    if ( fileName == null ) fileName = "";
+		
+		    String xdgDataHome = System.getenv("XDG_DATA_HOME");
+		    if (xdgDataHome == null)
+		      xdgDataHome = System.getProperty("user.home") +"/.local/share";
+		
+		    File[] locations = new File[] {
+		      // Windows XP
+		      new File( System.getProperty("user.home") +"/My Documents/My Games/FasterThanLight/"+ fileName),
+		      // Windows Vista/7
+		      new File( System.getProperty("user.home") +"/Documents/My Games/FasterThanLight/"+ fileName),
+		      // Linux
+		      new File( xdgDataHome +"/FasterThanLight/"+ fileName),
+		      // OSX
+		      new File( System.getProperty("user.home") +"/Library/Application Support/FasterThanLight/"+ fileName)
+		    };
+		
+		    return locations;
+		}
 }
