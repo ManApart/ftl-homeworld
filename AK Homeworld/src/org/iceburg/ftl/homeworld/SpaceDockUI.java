@@ -5,8 +5,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 
 import net.blerf.ftl.parser.DataManager;
 import net.blerf.ftl.xml.ShipBlueprint;
@@ -14,7 +12,6 @@ import net.blerf.ftl.xml.ShipBlueprint;
 import org.iceburg.ftl.homeworld.ShipSaveParser.ShipSave;
 
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -35,20 +32,9 @@ import javax.swing.JLabel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-//Credit to by Vhati and ComaToes for their FTLEditor and allowing me to use their source
-//FTL Editor found here: http://www.ftlgame.com/forum/viewtopic.php?f=7&t=10959&start=70
-//In order to get pics of each ship, I borrowed a lot of their code in order to interact with their datamanager
-//I made the custom background from FTL resources and a modified space dock based on schematics from: http://www.shipschematics.net/
-
-//TODO outline:
-//clean up code/ organize it better
-
-
 public class SpaceDockUI extends JPanel {
 
 	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
-//	private JFrame frmSpaceDock;
-	//private HomeworldFrame frame;
 	public ShipSave[] myShips;
 	public JButton[] buttonList;
 	public ShipSave currentShip;
@@ -56,7 +42,6 @@ public class SpaceDockUI extends JPanel {
 	private HashMap<String,BufferedImage> imageCache;
 	BufferedImage bg  = null;
 	ImageIcon img = null;
-	//Image bg = Toolkit.getDefaultToolkit().createImage("resource/SpaceDockSplash.png");
 	
     @Override
     public void paintComponent(Graphics g) {
@@ -83,7 +68,6 @@ public class SpaceDockUI extends JPanel {
 	 * Create the application.
 	 */
 	public SpaceDockUI() {
-		//this.frame = frame;
 		//initializ - get ships/file to display
 		myShips = ShipSaveParser.getShipsList();
 		buttonList = new JButton[myShips.length];
@@ -91,28 +75,19 @@ public class SpaceDockUI extends JPanel {
    				new File(myShips[0].getshipFilePath().getParentFile() + "\\continue.sav");
 		currentShip = ShipSaveParser.findCurrentShip(myShips, currentFile);
 		imageCache = new HashMap<String, BufferedImage>();
-		//frmSpaceDock = new JFrame();
-//		frmSpaceDock.setTitle("FTL Space Dock");
-//		frmSpaceDock.setBounds(100, 100, 850, 600);
-//		frmSpaceDock.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		frmSpaceDock.setLayout(new GridLayout(0, 1, 0, 0));
-//		BgPanel bgPanel = new BgPanel();
 		JPanel subPanel = new JPanel();
-		//JPanel mainPanel = new JPanel();
 		subPanel.setLayout(new GridLayout(0, 2, 0, 0));
 		setLayout(new GridLayout(0, 2, 0, 0));
 		subPanel.setOpaque(false);
 		setOpaque(false);
 		
 				
-		ImageIO.setUseCache(false);  // Small images don't need extra buffering.
+		//ImageIO.setUseCache(false);  // Small images don't need extra buffering.
 		
 		for (int i = 0; i < myShips.length; i++) {			
 			//create panel/ basic data
 			JPanel loopPanel = new JPanel();
 			loopPanel.setLayout(new BoxLayout(loopPanel, BoxLayout.Y_AXIS));
-			//loopPanel.setBackground(Color.gray);
-			//loopPanel.setBackground(new Color(0,0,0,100));
 			loopPanel.setOpaque(false);
 			JLabel lblShipName = new JLabel(myShips[i].getPlayerShipName());
 			lblShipName.setForeground(Color.white);
@@ -136,7 +111,6 @@ public class SpaceDockUI extends JPanel {
 			
 			baseImage = getResourceImage("img/ship/"+ ship.getGraphicsBaseName() +"_base.png", true);
 			JLabel lblShipID = new JLabel("", new ImageIcon(baseImage), JLabel.CENTER);
-			//lblShipID.setPreferredSize(new Dimension(200, 140));
 			loopPanel.add(lblShipID);
 			
 			//add the board / dock button
@@ -153,16 +127,9 @@ public class SpaceDockUI extends JPanel {
 			
 			
 			loopPanel.add(Box.createRigidArea(new Dimension(25, 10)));
-			//frmSpaceDock.add(loopPanel);
 			subPanel.add(loopPanel);
 		}
 		add(subPanel);
-//		bgPanel.setLayout(new BorderLayout());
-//		bgPanel.add(scrollPanel);
-//		frame.add(mainPanel);
-//		frmSpaceDock.add(bgPanel);
-		//frmSpaceDock.add(scrollPanel);
-		//frmSpaceDock.pack();
 	}
 	
 	class BoardListener implements ActionListener {
@@ -250,5 +217,6 @@ public class SpaceDockUI extends JPanel {
 		    	return image;
 		    }
 	}
+
 
 }

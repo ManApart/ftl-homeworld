@@ -39,12 +39,15 @@ import org.apache.logging.log4j.Logger;
 //-Science Bay - breakdown items, then can be bought
 
 //TODO outline:
-//Start on Warehouse GUI
+//clean up code/ organize it better
+//- Drag everything out of SpaceDockUI that I can into this
+//- Get spacedock to run from this class properly.
+//- Set up tabs properly, with warehouse and SpaceDock being the first two
 //Start on warehouse parser
-//Add look and feel code
+//Start on Warehouse GUI
 
 
-public class FTLHomeworld {
+public class FTLHomeworldTest {
 	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
 	
 	
@@ -145,7 +148,7 @@ public class FTLHomeworld {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					HomeworldFrame frame = new HomeworldFrame();
+					HomeworldFrameTest frame = new HomeworldFrameTest();
 					frame.setVisible(true);
 					
 				} catch (Exception e) {

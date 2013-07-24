@@ -1,20 +1,21 @@
 package org.iceburg.ftl.homeworld;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 
 //This is the frame that runs the panels/subprograms. The main UI
 
 public class HomeworldFrame extends JFrame {
 
 	private JPanel contentPane;
-	private SpaceDockUI spaceDockPanel;
+	public SpaceDockUI spaceDock;
 	
 
 	/**
@@ -26,27 +27,36 @@ public class HomeworldFrame extends JFrame {
 		setTitle("FTL Homeworld");
 		JTabbedPane tasksPane = new JTabbedPane();
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		contentPane.add( tasksPane, BorderLayout.CENTER );
 
-//		spaceDockPanel = new SpaceDockUI(this);
-		JPanel spaceDockPane = new SpaceDockUI();
-		JScrollPane scrollPanel = new JScrollPane(spaceDockPane);
+		SpaceDockUI spaceDock = new SpaceDockUI();
+		JScrollPane spaceDockPane = new JScrollPane(spaceDock);
+		
+		spaceDockPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		spaceDockPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		spaceDockPane.setOpaque(false);
+		spaceDockPane.getViewport().setOpaque(false);
+		tasksPane.add( "Space Dock", spaceDockPane);
 		
 		
-		//JScrollPane scrollPanel = new JScrollPane(new SpaceDockUI);
-		scrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPanel.setOpaque(false);
-		scrollPanel.getViewport().setOpaque(false);
-		tasksPane.add( "Space Dock", scrollPanel);
-		
-		
-		
+		JScrollPane cargoBayPane = new JScrollPane(new CargoBayUI(spaceDock.getCurrentShip()));
+
+		cargoBayPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		cargoBayPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		cargoBayPane.setOpaque(false);
+		cargoBayPane.getViewport().setOpaque(false);	
+		tasksPane.add( "Cargo Bay", cargoBayPane);
+
+		//use this to refresh tabs on tab change
+		tasksPane.addChangeListener(new ChangeListener() {
+				@Override    
+				public void stateChanged(ChangeEvent e) {
+		           // System.out.println("Tab: " + tasksPane.getSelectedIndex());
+		        }
+		});		
 		
 		
 	}
-
 }

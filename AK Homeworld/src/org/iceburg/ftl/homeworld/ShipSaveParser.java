@@ -169,23 +169,12 @@ public class ShipSaveParser extends Parser{
 	
 	public static class ShipSave extends SavedGameState {
 		public File shipFilePath;
-//		public JButton shipButton;
-		//Constructer, no need because above sets default?
-//		public ShipSave(){
-//			this.shipFilePath = null;
-//			this.playerShipName = "";
-//			this.playerShipBlueprintId = "";
-//		}
 				
 		public void setshipFilePath( File filePath) {
 			shipFilePath = filePath;
 		}
 		public File getshipFilePath() { return shipFilePath; }
 		
-//		public void setShipButton( JButton button) {
-//			shipButton = button;
-//		}
-//		public JButton getShipButton() { return shipButton; }
 	}
 
 
