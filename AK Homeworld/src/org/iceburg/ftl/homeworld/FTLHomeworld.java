@@ -208,6 +208,28 @@ public class FTLHomeworld {
 		}
 	}
 	
+		static void launchFTL() {
+			System.out.println("launched");
+			//File gameFolder = new File(FTLHomeworld.datsPath.getParentFile() + "\\");
+			//String[] command = {new String(FTLHomeworld.datsPath.getParentFile() + "\\FTLGame.exe" )};
+			//Runtime.getRuntime().exec(command);
+
+			//Ripped from KartoFlane's code. Thanks! 	
+			File ftl = new File(FTLHomeworld.datsPath.getParentFile().getAbsolutePath() + "/FTLGame.exe");
+			log.info(String.format("Running FTL... [%s]", ftl.getAbsolutePath()));
+			if (ftl.exists())
+			   try {
+			      ProcessBuilder builder = new ProcessBuilder(ftl.getAbsolutePath());
+			      builder.directory(ftl.getParentFile()); // this call corrects the working directory for the exe
+			      builder.start();
+			   } catch (IOException ex) {
+			      log.error("An exception occured while executing FTL.");
+			      ex.printStackTrace();
+			   }
+			else
+			   log.error("Could not find FTL executable.");
+		}
+	
 	//some functions ripped straight from FTLProfileEditor because they were private
 		private static void showErrorDialog( String message ) {
 			JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);

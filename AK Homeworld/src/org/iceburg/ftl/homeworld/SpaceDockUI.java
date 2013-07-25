@@ -106,7 +106,7 @@ public class SpaceDockUI extends JPanel {
 		
 		launchbtn = new JButton("Launch FTL");
 		launchbtn.addActionListener(new SaveFolderListener());
-		//rightPanel.add(launchbtn);
+		rightPanel.add(launchbtn);
 		
 		refreshbtn = new JButton("Refresh");
 		refreshbtn.addActionListener(new SaveFolderListener());
@@ -184,24 +184,7 @@ public class SpaceDockUI extends JPanel {
 				
 			}
 			else if (o.equals(launchbtn)) {
-				//TODO - launch game
-				System.out.println("launched");
-				//File gameFolder = new File(FTLHomeworld.datsPath.getParentFile() + "\\");
-				String command = new String(FTLHomeworld.datsPath.getParentFile() + "\\FTLGame.exe" );
-				
-				try {
-				//Runtime.getRuntime().exec("FTLGame.exe", null, gameFolder);
-					Runtime.getRuntime().exec(command);
-					
-					//This launches and the immediatly exits FTL
-//					ProcessBuilder pb = new ProcessBuilder(command);
-//					pb.start();
-					
-					
-				} catch (IOException e1) {
-					// Auto-generated catch block
-					e1.printStackTrace();
-				}
+				FTLHomeworld.launchFTL();
 			}
 			
 		}
