@@ -7,6 +7,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
+
 //This is the frame that runs the panels/subprograms. The main UI (Test Varient)
 
 public class HomeworldFrameTest extends JFrame {

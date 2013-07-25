@@ -1,4 +1,4 @@
-package org.iceburg.ftl.homeworld;
+package org.iceburg.ftl.homeworld.core;
 
 import java.awt.EventQueue;
 
@@ -21,6 +21,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.iceburg.ftl.homeworld.ui.HomeworldFrame;
 import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 
 //CREDITS:
@@ -40,25 +41,22 @@ import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 //-Science Bay - breakdown items, then can be bought
 
 //TODO outline:
-//clean up code/ organize it better
-//- Drag everything out of SpaceDockUI that I can into this
-//- Get spacedock to run from this class properly.
-//- Set up tabs properly, with warehouse and SpaceDock being the first two
-//Start on warehouse parser
 //Start on Warehouse GUI
+//Start on warehouse parser
+//Add look and feel code
 
 
-public class FTLHomeworldTest {
+public class FTLHomeworld {
 	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
-	
-	
+	public static File save_location = null;
+	public static File datsPath = null;	
 	
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		File propFile = new File("ftl-homeworld.cfg");
-		File datsPath = null;
+		
 		boolean writeConfig = false;
 		Properties config = new Properties();
 		ImageIO.setUseCache(false);  // Small images don't need extra buffering.
@@ -96,7 +94,21 @@ public class FTLHomeworldTest {
 		}
 		
 
-		// Find/prompt for the path to set in the config.
+		//FTL Save Path.
+		String savePathString = config.getProperty("ftlSavePath");
+
+		if ( savePathString != null ) {
+			log.info( "Using FTL dats path from config: " + savePathString );
+			save_location = new File(savePathString);
+			if ( isSavePathValid(save_location) == false ) {
+				log.error( "The config's ftlSavePath does not exist." );
+				save_location = null;
+			}
+		} else {
+			log.trace( "No FTL save path previously set." );
+		}
+		
+		// Find/prompt for the dats path to set in the config.
 		if ( datsPath == null ) {
 			datsPath = findFtlPath();
 			if ( datsPath != null ) {
@@ -115,17 +127,47 @@ public class FTLHomeworldTest {
 				log.info( "FTL dats located at: " + datsPath.getAbsolutePath() );
 			}
 		}
-
 		if ( datsPath == null ) {
-			showErrorDialog( "FTL data was not found.\nFTL Profile Editor will now exit." );
+			showErrorDialog( "FTL dats path was not found.\nFTL Homeworld will now exit." );
 			log.debug( "No FTL dats path found, exiting." );
+			System.exit(1);
+		}
+		
+		// Find/prompt for the save path to set in the config.
+		if ( save_location == null ) {
+			for ( File file : FTLHomeworld.getPossibleUserDataLocations("prof.sav") ) {
+			      if ( file.exists() ) {
+			    	  save_location = file.getParentFile();
+			        break;
+			      }
+			}
+			if ( save_location != null ) {
+				int response = JOptionPane.showConfirmDialog(null, "FTL saves were found in:\n"+ save_location.getPath() +"\nIs this correct?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if ( response == JOptionPane.NO_OPTION ) save_location = null;
+			}
+
+			if ( save_location == null ) {
+				log.debug("FTL saves path was not located automatically. Prompting user for location.");
+				save_location = promptForSavePath();
+			}
+
+			if ( save_location != null ) {
+				config.setProperty( "ftlSavePath", save_location.getAbsolutePath() );
+				writeConfig = true;
+				log.info( "FTL saves located at: " + save_location.getAbsolutePath() );
+			}
+		}
+
+		if ( save_location == null ) {
+			showErrorDialog( "FTL save folder was not found.\nFTL Homeworld will now exit." );
+			log.debug( "No FTL save path found, exiting." );
 			System.exit(1);
 		}
 		OutputStream out = null;
 		if ( writeConfig ) {
 			try {
 				out = new FileOutputStream(propFile);
-				config.store( out, "FTL Profile Editor - Config File" );
+				config.store( out, "FTL Homeworld - Config File" );
 
 			} catch (IOException e) {
 				log.error( "Error saving config to " + propFile.getPath(), e );
@@ -149,7 +191,7 @@ public class FTLHomeworldTest {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					HomeworldFrameTest frame = new HomeworldFrameTest();
+					HomeworldFrame frame = new HomeworldFrame();
 					frame.setVisible(true);
 					
 				} catch (Exception e) {
@@ -168,12 +210,37 @@ public class FTLHomeworldTest {
 		}
 	}
 	
+		public static void launchFTL() {
+			System.out.println("launched");
+			//File gameFolder = new File(FTLHomeworld.datsPath.getParentFile() + "\\");
+			//String[] command = {new String(FTLHomeworld.datsPath.getParentFile() + "\\FTLGame.exe" )};
+			//Runtime.getRuntime().exec(command);
+
+			//Ripped from KartoFlane's code. Thanks! 	
+			File ftl = new File(FTLHomeworld.datsPath.getParentFile().getAbsolutePath() + "/FTLGame.exe");
+			log.info(String.format("Running FTL... [%s]", ftl.getAbsolutePath()));
+			if (ftl.exists())
+			   try {
+			      ProcessBuilder builder = new ProcessBuilder(ftl.getAbsolutePath());
+			      builder.directory(ftl.getParentFile()); // this call corrects the working directory for the exe
+			      builder.start();
+			   } catch (IOException ex) {
+			      log.error("An exception occured while executing FTL.");
+			      ex.printStackTrace();
+			   }
+			else
+			   log.error("Could not find FTL executable.");
+		}
+	
 	//some functions ripped straight from FTLProfileEditor because they were private
-		private static void showErrorDialog( String message ) {
+		public static void showErrorDialog( String message ) {
 			JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
 		}
 		private static boolean isDatsPathValid(File path) {
 			return (path.exists() && path.isDirectory() && new File(path,"data.dat").exists());
+		}
+		private static boolean isSavePathValid(File path) {
+			return (path.exists() && path.isDirectory());
 		}
 		
 		private static File promptForFtlPath() {
@@ -220,6 +287,43 @@ public class FTLHomeworldTest {
 
 			return null;
 		}
+		public static File promptForSavePath() {
+			File ftlPath = null;
+
+			String message = "FTL Homeworld manages saves from FTL,\n";
+			message += "but the path to FTL's saves could not be guessed.\n\n";
+			message += "You will now be prompted to locate them manually.\n";
+			message += "Select '/Documents/My Games/FasterThanLight/continue.sav'\n";
+			JOptionPane.showMessageDialog(null,  message, "FTL Save Not Found", JOptionPane.INFORMATION_MESSAGE);
+
+			final JFileChooser fc = new JFileChooser();
+			fc.setDialogTitle( "Find continue.sav" );
+			fc.addChoosableFileFilter( new FileFilter() {
+				@Override
+				public String getDescription() {
+					return "FTL Data File - /Documents/My Games/FasterThanLight/continue.sav";
+				}
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory() || f.getName().equals("continue.sav") || f.getName().equals("prof.sav");
+				}
+			});
+			fc.setMultiSelectionEnabled(false);
+
+			if ( fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ) {
+				File f = fc.getSelectedFile();
+				ftlPath = f.getParentFile();
+				log.trace( "User selected: " + ftlPath.getAbsolutePath() );
+			} else {
+				log.trace( "User cancelled FTL dats path selection." );
+			}
+
+			if ( ftlPath != null && isSavePathValid(ftlPath) ) {
+				return ftlPath;
+			}
+
+			return null;
+		}
 		private static File findFtlPath() {
 			String steamPath = "Steam/steamapps/common/FTL Faster Than Light/resources";
 			String gogPath = "GOG.com/Faster Than Light/resources";
@@ -255,4 +359,24 @@ public class FTLHomeworldTest {
 			return ftlPath;
 		}
 	
+		public static File[] getPossibleUserDataLocations( String fileName ) {
+		    if ( fileName == null ) fileName = "";
+		
+		    String xdgDataHome = System.getenv("XDG_DATA_HOME");
+		    if (xdgDataHome == null)
+		      xdgDataHome = System.getProperty("user.home") +"/.local/share";
+		
+		    File[] locations = new File[] {
+		      // Windows XP
+		      new File( System.getProperty("user.home") +"/My Documents/My Games/FasterThanLight/"+ fileName),
+		      // Windows Vista/7
+		      new File( System.getProperty("user.home") +"/Documents/My Games/FasterThanLight/"+ fileName),
+		      // Linux
+		      new File( xdgDataHome +"/FasterThanLight/"+ fileName),
+		      // OSX
+		      new File( System.getProperty("user.home") +"/Library/Application Support/FasterThanLight/"+ fileName)
+		    };
+		
+		    return locations;
+		}
 }

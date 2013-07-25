@@ -2,8 +2,8 @@ package org.iceburg.ftl.homeworld;
 
 import java.io.File;
 
-import org.iceburg.ftl.homeworld.ShipSaveParser;
-import org.iceburg.ftl.homeworld.ShipSaveParser.ShipSave;
+import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
+import org.iceburg.ftl.homeworld.model.ShipSave;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -100,7 +100,7 @@ public class ShipSaveParserTest {
 		parser.writeShipSave(ss1);
 		assertTrue("Origional continue should exist",
 				ss1.getshipFilePath().exists());
-		assertTrue("Ship should have been docked", parser.dockShip(ss1));
+		assertTrue("Ship should have been docked", ShipSave.dockShip(ss1));
 		
 		assertTrue("Shipfile should have been renamed", deleteFile.exists());
 			
@@ -123,7 +123,7 @@ public class ShipSaveParserTest {
 		parser.writeShipSave(ss1);
 		assertTrue("Origional continue should exist",
 				ss1.getshipFilePath().exists());
-		assertTrue("Ship should have been boarded", parser.boardShip(ss1));
+		assertTrue("Ship should have been boarded", ShipSave.boardShip(ss1));
 		ShipSave ss2 = parser.readShipSave(deleteFile);
 		assertTrue("Shipfile should have been renamed to continue.sav", 
 				ss2.getshipFilePath().equals(deleteFile));

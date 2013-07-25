@@ -2,26 +2,16 @@ package org.iceburg.ftl.homeworld;
 
 import java.awt.EventQueue;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
-import net.blerf.ftl.parser.DataManager;
-import net.blerf.ftl.ui.IconCycleButton;
-import net.blerf.ftl.xml.ShipBlueprint;
-
-import org.iceburg.ftl.homeworld.ShipSaveParser;
-import org.iceburg.ftl.homeworld.ShipSaveParser.ShipSave;
+import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
+import org.iceburg.ftl.homeworld.model.ShipSave;
 
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
-import java.awt.FlowLayout;
 import java.io.File;
 
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
