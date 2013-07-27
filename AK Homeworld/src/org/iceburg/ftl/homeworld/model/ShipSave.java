@@ -17,8 +17,9 @@ import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 
 public class ShipSave extends SavedGameState {
 	public File shipFilePath;
-//	public JButton boardbtn;
+	public JButton boardbtn;
 	public String imageInnerPath;
+	public ShipSave self; //KartoFlane, you're a genius
 			
 	public void setshipFilePath( File filePath) {
 		shipFilePath = filePath;
@@ -29,26 +30,19 @@ public class ShipSave extends SavedGameState {
 		shipFilePath = file;
 	//	boardbtn = new JButton();
 		new ShipSaveParser().readShipSave(this);
+		self = this;
+
 		
-//		boardbtn.addActionListener(new ActionListener() {
-//	         public void actionPerformed(ActionEvent e) {
-//	            if (SpaceDockUI.getCurrentShip() != e.getSource()) {
-//	               SpaceDockUI.currentShip.dock();
-//	               board(); // changes currentShip = this and button text to "Dock", etc...
-//	            } else {
-//	               dock(); // changes button text to "Board", etc...
-//	            }
-//	         }
-//	      });
 	}
 	
-	public static boolean dockShip(ShipSave ss1) {
+	public static boolean dockShip(ShipSave ss1, int listLength) {
 		boolean success = false;
 		File oldFile = ss1.getshipFilePath();
 		File newFile = null;
 		String fileName;
 		int i = 1;
-		while (oldFile.exists() && i <= 50) {
+		//&& i <= 50
+		while (oldFile.exists() && i <= (listLength + 2)) {
 			fileName = "continue_" + i + ".sav";
 			newFile = new File(FTLHomeworld.save_location, fileName);
 			if (!newFile.exists()) {
@@ -67,10 +61,10 @@ public class ShipSave extends SavedGameState {
 			i = (i + 1);
 		}
 		ss1.setshipFilePath(newFile);
-		if (i > 50) {
-			FTLHomeworld.showErrorDialog("Over 50 ships, no room means the dock ship failed!");
-			ss1.setshipFilePath(oldFile);
-		}
+//		if (i > 50) {
+//			FTLHomeworld.showErrorDialog("Over 50 ships, no room means the dock ship failed!");
+//			ss1.setshipFilePath(oldFile);
+//		}
 		return success;
 	}
 	

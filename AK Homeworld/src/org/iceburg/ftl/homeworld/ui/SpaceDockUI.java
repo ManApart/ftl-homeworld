@@ -153,11 +153,11 @@ public class SpaceDockUI extends JPanel {
 			
 			//add the board / dock button
 			if (myShips[i] == this.currentShip) {
-//				myShips[i].boardbtn.setText("Dock");		
+			//	myShips[i].boardbtn.setText("Dock");		
 				buttonList[i] = new JButton("Dock");		
 			}
 			else {
-				//myShips[i].boardbtn.setText("Board");
+			//	myShips[i].boardbtn.setText("Board");
 				buttonList[i] = new JButton("Board");
 			}
 			//add to a button array so we can use the index to match the button to the ship		
@@ -203,7 +203,7 @@ public class SpaceDockUI extends JPanel {
 			int i = Arrays.asList(buttonList).indexOf(sourceButton);
 			if (sourceButton.getText().equals("Dock")) {
 	    	   sourceButton.setText("Board");	    	   
-	    	   ShipSave.dockShip(myShips[i]);
+	    	   ShipSave.dockShip(myShips[i], myShips.length);
 	    	   currentShip = null;
 	    	   
 			} else if (sourceButton.getText().equals("Board")) {
@@ -212,7 +212,7 @@ public class SpaceDockUI extends JPanel {
 	    	   if  (currentShip != null) {
 	    		   //Find which ship has the file, dock it, and then update it's button
 	    		  // System.out.println("Already manning a ship!");
-	    		   ShipSave.dockShip(currentShip);
+	    		   ShipSave.dockShip(currentShip, myShips.length);
 	    		   int b = Arrays.asList(myShips).indexOf(currentShip);
 	    		   buttonList[b].setText("Board");
 	    		   currentShip = null;
@@ -223,6 +223,7 @@ public class SpaceDockUI extends JPanel {
 			}
 		}
 	}
+	
 	
 	
 	

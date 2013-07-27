@@ -98,7 +98,7 @@ public class ShipSaveParserTest {
 		parser.writeShipSave(ss1);
 		assertTrue("Origional continue should exist",
 				ss1.getshipFilePath().exists());
-		assertTrue("Ship should have been docked", ShipSave.dockShip(ss1));
+		assertTrue("Ship should have been docked", ShipSave.dockShip(ss1, 5));
 		
 		assertTrue("Shipfile should have been renamed", deleteFile.exists());
 			
