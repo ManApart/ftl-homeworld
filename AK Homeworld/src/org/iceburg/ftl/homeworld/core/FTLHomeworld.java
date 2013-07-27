@@ -19,8 +19,8 @@ import java.util.Properties;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.bind.JAXBException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.log4j.LogManager;
+//import org.apache.log4j.Logger;
 import org.iceburg.ftl.homeworld.ui.HomeworldFrame;
 import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 
@@ -47,7 +47,7 @@ import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 
 
 public class FTLHomeworld {
-	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
+//	private static final Logger log = LogManager.getLogger(FTLHomeworld.class);
 	public static File save_location = null;
 	public static File datsPath = null;	
 	
@@ -65,14 +65,14 @@ public class FTLHomeworld {
 		InputStream in = null;
 		try {
 			if ( propFile.exists() ) {
-				log.trace( "Loading properties from config file." );
+				// log.trace( "Loading properties from config file." );
 				in = new FileInputStream(propFile);
 				config.load( in );
 			} else {
 				writeConfig = true; // Create a new cfg, but only if necessary.
 			}
 		} catch (IOException e) {
-			log.error( "Error loading config.", e );
+			// log.error( "Error loading config.", e );
 			showErrorDialog( "Error loading config from " + propFile.getPath() );
 			e.printStackTrace();
 		} finally {
@@ -83,14 +83,14 @@ public class FTLHomeworld {
 		String datsPathString = config.getProperty("ftlDatsPath");
 
 		if ( datsPathString != null ) {
-			log.info( "Using FTL dats path from config: " + datsPathString );
+			// log.info( "Using FTL dats path from config: " + datsPathString );
 			datsPath = new File(datsPathString);
 			if ( isDatsPathValid(datsPath) == false ) {
-				log.error( "The config's ftlDatsPath does not exist, or it lacks data.dat." );
+				// log.error( "The config's ftlDatsPath does not exist, or it lacks data.dat." );
 				datsPath = null;
 			}
 		} else {
-			log.trace( "No FTL dats path previously set." );
+			// log.trace( "No FTL dats path previously set." );
 		}
 		
 
@@ -98,14 +98,14 @@ public class FTLHomeworld {
 		String savePathString = config.getProperty("ftlSavePath");
 
 		if ( savePathString != null ) {
-			log.info( "Using FTL dats path from config: " + savePathString );
+			// log.info( "Using FTL dats path from config: " + savePathString );
 			save_location = new File(savePathString);
 			if ( isSavePathValid(save_location) == false ) {
-				log.error( "The config's ftlSavePath does not exist." );
+				// log.error( "The config's ftlSavePath does not exist." );
 				save_location = null;
 			}
 		} else {
-			log.trace( "No FTL save path previously set." );
+			// log.trace( "No FTL save path previously set." );
 		}
 		
 		// Find/prompt for the dats path to set in the config.
@@ -117,19 +117,19 @@ public class FTLHomeworld {
 			}
 
 			if ( datsPath == null ) {
-				log.debug("FTL dats path was not located automatically. Prompting user for location.");
+				// log.debug("FTL dats path was not located automatically. Prompting user for location.");
 				datsPath = promptForFtlPath();
 			}
 
 			if ( datsPath != null ) {
 				config.setProperty( "ftlDatsPath", datsPath.getAbsolutePath() );
 				writeConfig = true;
-				log.info( "FTL dats located at: " + datsPath.getAbsolutePath() );
+				// log.info( "FTL dats located at: " + datsPath.getAbsolutePath() );
 			}
 		}
 		if ( datsPath == null ) {
 			showErrorDialog( "FTL dats path was not found.\nFTL Homeworld will now exit." );
-			log.debug( "No FTL dats path found, exiting." );
+			// log.debug( "No FTL dats path found, exiting." );
 			System.exit(1);
 		}
 		
@@ -147,20 +147,20 @@ public class FTLHomeworld {
 			}
 
 			if ( save_location == null ) {
-				log.debug("FTL saves path was not located automatically. Prompting user for location.");
+				// log.debug("FTL saves path was not located automatically. Prompting user for location.");
 				save_location = promptForSavePath();
 			}
 
 			if ( save_location != null ) {
 				config.setProperty( "ftlSavePath", save_location.getAbsolutePath() );
 				writeConfig = true;
-				log.info( "FTL saves located at: " + save_location.getAbsolutePath() );
+				// log.info( "FTL saves located at: " + save_location.getAbsolutePath() );
 			}
 		}
 
 		if ( save_location == null ) {
 			showErrorDialog( "FTL save folder was not found.\nFTL Homeworld will now exit." );
-			log.debug( "No FTL save path found, exiting." );
+			// log.debug( "No FTL save path found, exiting." );
 			System.exit(1);
 		}
 		OutputStream out = null;
@@ -170,7 +170,7 @@ public class FTLHomeworld {
 				config.store( out, "FTL Homeworld - Config File" );
 
 			} catch (IOException e) {
-				log.error( "Error saving config to " + propFile.getPath(), e );
+				// log.error( "Error saving config to " + propFile.getPath(), e );
 				showErrorDialog( "Error saving config to " + propFile.getPath() );
 				e.printStackTrace();
 			} finally {
@@ -182,7 +182,7 @@ public class FTLHomeworld {
 			DataManager.init( datsPath ); // Parse the dats.
 		}
 		catch (Exception e) {
-		//	log.error( "Error parsing FTL data files.", e );
+		//	// log.error( "Error parsing FTL data files.", e );
 			showErrorDialog( "Error parsing FTL data files." );
 			System.exit(1);
 			e.printStackTrace();
@@ -218,19 +218,18 @@ public class FTLHomeworld {
 
 			//Ripped from KartoFlane's code. Thanks! 	
 			File ftl = new File(FTLHomeworld.datsPath.getParentFile().getAbsolutePath() + "/FTLGame.exe");
-			log.info(String.format("Running FTL... [%s]", ftl.getAbsolutePath()));
+			// log.info(String.format("Running FTL... [%s]", ftl.getAbsolutePath()));
 			if (ftl.exists())
 			   try {
 			      ProcessBuilder builder = new ProcessBuilder(ftl.getAbsolutePath());
 			      builder.directory(ftl.getParentFile()); // this call corrects the working directory for the exe
 			      builder.start();
 			   } catch (IOException ex) {
-			      log.error("An exception occured while executing FTL.");
-			      ex.printStackTrace();
-			   }
-			else
-			   log.error("Could not find FTL executable.");
-		}
+			      // log.error("An exception occured while executing FTL.");
+			      ex.printStackTrace();}			   }
+//			else
+//			   // log.error("Could not find FTL executable.");
+//		}
 	
 	//some functions ripped straight from FTLProfileEditor because they were private
 		public static void showErrorDialog( String message ) {
@@ -276,9 +275,9 @@ public class FTLHomeworld {
 					if( contentsPath.exists() && contentsPath.isDirectory() && new File(contentsPath, "Resources").exists() )
 						ftlPath = new File(contentsPath, "Resources");
 				}
-				log.trace( "User selected: " + ftlPath.getAbsolutePath() );
+				// log.trace( "User selected: " + ftlPath.getAbsolutePath() );
 			} else {
-				log.trace( "User cancelled FTL dats path selection." );
+				// log.trace( "User cancelled FTL dats path selection." );
 			}
 
 			if ( ftlPath != null && isDatsPathValid(ftlPath) ) {
@@ -313,9 +312,9 @@ public class FTLHomeworld {
 			if ( fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ) {
 				File f = fc.getSelectedFile();
 				ftlPath = f.getParentFile();
-				log.trace( "User selected: " + ftlPath.getAbsolutePath() );
+				// log.trace( "User selected: " + ftlPath.getAbsolutePath() );
 			} else {
-				log.trace( "User cancelled FTL dats path selection." );
+				// log.trace( "User cancelled FTL dats path selection." );
 			}
 
 			if ( ftlPath != null && isSavePathValid(ftlPath) ) {

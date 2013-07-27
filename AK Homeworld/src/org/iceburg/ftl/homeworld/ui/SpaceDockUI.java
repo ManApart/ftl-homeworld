@@ -11,6 +11,7 @@ import net.blerf.ftl.xml.ShipBlueprint;
 
 import org.iceburg.ftl.homeworld.core.FTLHomeworld;
 import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
+import org.iceburg.ftl.homeworld.resource.ResourceClass;
 import org.iceburg.ftl.homeworld.model.ShipSave;
 
 import javax.swing.JPanel;
@@ -32,14 +33,14 @@ import java.util.HashMap;
 
 import javax.swing.JLabel;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.log4j.LogManager;
+//import org.apache.log4j.Logger;
 
 //TODO
 
 public class SpaceDockUI extends JPanel {
 
-	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
+//	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
 	public ShipSave[] myShips;
 	public JButton[] buttonList;
 	public ShipSave currentShip;
@@ -54,7 +55,7 @@ public class SpaceDockUI extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
 		//bg = ImageIO.read(new File("./resource/SpaceDockSplash.png")); //this guy worked in eclipse but not in jar
-		img = new ImageIcon(this.getClass().getResource("../resource/SpaceDockSplash.png"));
+		img = new ImageIcon((new ResourceClass()).getClass().getResource("SpaceDockSplash.png"));
 		bg = new BufferedImage(
 		img.getIconWidth(),
 		img.getIconHeight(),
@@ -80,7 +81,7 @@ public class SpaceDockUI extends JPanel {
 	}
 	
 	public void init() {
-		//initializ - get ships/file to display
+		//initialize - get ships/file to display
 		this.removeAll();
 		this.myShips = ShipSaveParser.getShipsList();
 		if (myShips.length > 0);
@@ -152,13 +153,17 @@ public class SpaceDockUI extends JPanel {
 			
 			//add the board / dock button
 			if (myShips[i] == this.currentShip) {
-				buttonList[i] =  new JButton("Dock");		
+//				myShips[i].boardbtn.setText("Dock");		
+				buttonList[i] = new JButton("Dock");		
 			}
 			else {
-				buttonList[i] =  new JButton("Board");
+				//myShips[i].boardbtn.setText("Board");
+				buttonList[i] = new JButton("Board");
 			}
 			//add to a button array so we can use the index to match the button to the ship		
+	//		loopPanel.add(myShips[i].boardbtn);
 			loopPanel.add(buttonList[i]);
+	//		myShips[i].boardbtn.addActionListener(new BoardListener());
 			buttonList[i].addActionListener(new BoardListener());
 			
 			
@@ -240,7 +245,7 @@ public class SpaceDockUI extends JPanel {
 			    
 			  }
 			  catch (IOException e) {
-			    log.error( "Failed to load resource image ("+ innerPath +")", e );
+			 //   log.error( "Failed to load resource image ("+ innerPath +")", e );
 			    e.printStackTrace();
 			  }
 			  finally {

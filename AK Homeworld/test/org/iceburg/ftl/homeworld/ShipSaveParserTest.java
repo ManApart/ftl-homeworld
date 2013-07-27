@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class ShipSaveParserTest {
 	
 	public ShipSave createShipSave() {
-		ShipSave ss1 = new ShipSave();
+		ShipSave ss1 = new ShipSave(new File("NextGen.sav"));
 		ss1.setDifficultyEasy(true);
 		ss1.setTotalShipsDefeated(2);
 		ss1.setTotalBeaconsExplored(3);
@@ -19,7 +19,6 @@ public class ShipSaveParserTest {
 		
 		ss1.setPlayerShipName("Enterprise");
 		ss1.setPlayerShipBlueprintId("NCC-1701-D");
-		ss1.setshipFilePath(new File("NextGen.sav"));
 		return ss1;
 	}
 	@Test
@@ -35,7 +34,7 @@ public class ShipSaveParserTest {
 		File testfile = new File("TestShip.sav");
 		//File testfile = new File("NextGen.sav");
 		ShipSaveParser parser = new ShipSaveParser();
-		ShipSave ss1 = parser.readShipSave(testfile);
+		ShipSave ss1 = new ShipSave(testfile);
 		assertEquals(true, ss1.isDifficultyEasy());
 		assertEquals(5, ss1.getTotalShipsDefeated());
 		assertEquals(7, ss1.getTotalBeaconsExplored());
@@ -93,8 +92,7 @@ public class ShipSaveParserTest {
 		deleteFile.delete();
 		assertFalse("DeleteFile should not exist",
 				deleteFile.exists());
-		ShipSave ss1 = new ShipSave();
-		ss1.setshipFilePath(new File("continue.sav"));
+		ShipSave ss1 = new ShipSave(new File("continue.sav"));
 		ss1.getshipFilePath().delete();
 		ShipSaveParser parser = new ShipSaveParser();
 		parser.writeShipSave(ss1);
@@ -116,15 +114,14 @@ public class ShipSaveParserTest {
 		deleteFile.delete();
 		assertFalse("DeleteFile should not exist",
 				deleteFile.exists());
-		ShipSave ss1 = new ShipSave();
-		ss1.setshipFilePath(new File("continue_1.sav"));
+		ShipSave ss1 = new ShipSave(new File("continue_1.sav"));
 		ss1.getshipFilePath().delete();
 		ShipSaveParser parser = new ShipSaveParser();
 		parser.writeShipSave(ss1);
 		assertTrue("Origional continue should exist",
 				ss1.getshipFilePath().exists());
 		assertTrue("Ship should have been boarded", ShipSave.boardShip(ss1));
-		ShipSave ss2 = parser.readShipSave(deleteFile);
+		ShipSave ss2 = new ShipSave(deleteFile);
 		assertTrue("Shipfile should have been renamed to continue.sav", 
 				ss2.getshipFilePath().equals(deleteFile));
 	}

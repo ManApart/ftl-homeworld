@@ -1,22 +1,46 @@
 package org.iceburg.ftl.homeworld.model;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javax.swing.JButton;
+
 import org.iceburg.ftl.homeworld.core.FTLHomeworld;
+import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
+import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 
 import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 
 public class ShipSave extends SavedGameState {
 	public File shipFilePath;
+//	public JButton boardbtn;
+	public String imageInnerPath;
 			
 	public void setshipFilePath( File filePath) {
 		shipFilePath = filePath;
 	}
 	public File getshipFilePath() { return shipFilePath; }
 
+	public ShipSave(File file) {
+		shipFilePath = file;
+	//	boardbtn = new JButton();
+		new ShipSaveParser().readShipSave(this);
+		
+//		boardbtn.addActionListener(new ActionListener() {
+//	         public void actionPerformed(ActionEvent e) {
+//	            if (SpaceDockUI.getCurrentShip() != e.getSource()) {
+//	               SpaceDockUI.currentShip.dock();
+//	               board(); // changes currentShip = this and button text to "Dock", etc...
+//	            } else {
+//	               dock(); // changes button text to "Board", etc...
+//	            }
+//	         }
+//	      });
+	}
 	
 	public static boolean dockShip(ShipSave ss1) {
 		boolean success = false;

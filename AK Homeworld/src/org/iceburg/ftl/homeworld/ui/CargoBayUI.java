@@ -21,6 +21,7 @@ import net.blerf.ftl.parser.SavedGameParser.WeaponState;
 import net.blerf.ftl.xml.ShipBlueprint;
 
 import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
+import org.iceburg.ftl.homeworld.resource.ResourceClass;
 import org.iceburg.ftl.homeworld.model.ShipSave;
 
 import java.awt.Color;
@@ -40,7 +41,7 @@ public class CargoBayUI extends JPanel {
 	//JLabel shipName = null;
 		 @Override
 		    public void paintComponent(Graphics g) {
-				img = new ImageIcon(this.getClass().getResource("../resource/CargoBaySplash.png"));
+				img = new ImageIcon((new ResourceClass()).getClass().getResource("CargoBaySplash.png"));
 				bg = new BufferedImage(
 				img.getIconWidth(),
 				img.getIconHeight(),

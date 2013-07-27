@@ -19,8 +19,8 @@ import java.util.Properties;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.bind.JAXBException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.log4j.LogManager;
+//import org.apache.log4j.Logger;
 import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 
 //CREDITS:
@@ -49,7 +49,7 @@ import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 
 
 public class FTLHomeworldTest {
-	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
+	//private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
 	
 	
 	
@@ -67,14 +67,14 @@ public class FTLHomeworldTest {
 		InputStream in = null;
 		try {
 			if ( propFile.exists() ) {
-				log.trace( "Loading properties from config file." );
+				// log.trace( "Loading properties from config file." );
 				in = new FileInputStream(propFile);
 				config.load( in );
 			} else {
 				writeConfig = true; // Create a new cfg, but only if necessary.
 			}
 		} catch (IOException e) {
-			log.error( "Error loading config.", e );
+			// log.error( "Error loading config.", e );
 			showErrorDialog( "Error loading config from " + propFile.getPath() );
 			e.printStackTrace();
 		} finally {
@@ -85,14 +85,14 @@ public class FTLHomeworldTest {
 		String datsPathString = config.getProperty("ftlDatsPath");
 
 		if ( datsPathString != null ) {
-			log.info( "Using FTL dats path from config: " + datsPathString );
+			// log.info( "Using FTL dats path from config: " + datsPathString );
 			datsPath = new File(datsPathString);
 			if ( isDatsPathValid(datsPath) == false ) {
-				log.error( "The config's ftlDatsPath does not exist, or it lacks data.dat." );
+				// log.error( "The config's ftlDatsPath does not exist, or it lacks data.dat." );
 				datsPath = null;
 			}
 		} else {
-			log.trace( "No FTL dats path previously set." );
+			// log.trace( "No FTL dats path previously set." );
 		}
 		
 
@@ -105,20 +105,20 @@ public class FTLHomeworldTest {
 			}
 
 			if ( datsPath == null ) {
-				log.debug("FTL dats path was not located automatically. Prompting user for location.");
+				// log.debug("FTL dats path was not located automatically. Prompting user for location.");
 				datsPath = promptForFtlPath();
 			}
 
 			if ( datsPath != null ) {
 				config.setProperty( "ftlDatsPath", datsPath.getAbsolutePath() );
 				writeConfig = true;
-				log.info( "FTL dats located at: " + datsPath.getAbsolutePath() );
+				// log.info( "FTL dats located at: " + datsPath.getAbsolutePath() );
 			}
 		}
 
 		if ( datsPath == null ) {
 			showErrorDialog( "FTL data was not found.\nFTL Profile Editor will now exit." );
-			log.debug( "No FTL dats path found, exiting." );
+			// log.debug( "No FTL dats path found, exiting." );
 			System.exit(1);
 		}
 		OutputStream out = null;
@@ -128,7 +128,7 @@ public class FTLHomeworldTest {
 				config.store( out, "FTL Profile Editor - Config File" );
 
 			} catch (IOException e) {
-				log.error( "Error saving config to " + propFile.getPath(), e );
+				// log.error( "Error saving config to " + propFile.getPath(), e );
 				showErrorDialog( "Error saving config to " + propFile.getPath() );
 				e.printStackTrace();
 			} finally {
@@ -140,7 +140,7 @@ public class FTLHomeworldTest {
 			DataManager.init( datsPath ); // Parse the dats.
 		}
 		catch (Exception e) {
-		//	log.error( "Error parsing FTL data files.", e );
+		//	// log.error( "Error parsing FTL data files.", e );
 			showErrorDialog( "Error parsing FTL data files." );
 			System.exit(1);
 			e.printStackTrace();
@@ -209,9 +209,9 @@ public class FTLHomeworldTest {
 					if( contentsPath.exists() && contentsPath.isDirectory() && new File(contentsPath, "Resources").exists() )
 						ftlPath = new File(contentsPath, "Resources");
 				}
-				log.trace( "User selected: " + ftlPath.getAbsolutePath() );
+				// log.trace( "User selected: " + ftlPath.getAbsolutePath() );
 			} else {
-				log.trace( "User cancelled FTL dats path selection." );
+				// log.trace( "User cancelled FTL dats path selection." );
 			}
 
 			if ( ftlPath != null && isDatsPathValid(ftlPath) ) {

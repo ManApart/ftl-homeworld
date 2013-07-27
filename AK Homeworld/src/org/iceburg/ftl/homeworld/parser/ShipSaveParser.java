@@ -36,11 +36,11 @@ import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 //Ships the same size
 public class ShipSaveParser extends Parser{
 	
-	public ShipSave readShipSave(File sav)  {
+	public ShipSave readShipSave(ShipSave saveFile)  {
 		//private static final Logger log = LogManager.getLogger(ShipSaveParser.class);
 		FileInputStream in = null;
 		InputStream layoutStream = null;
-		ShipSave saveFile = new ShipSave();
+		File sav = saveFile.getshipFilePath();
 		try {
 			
 			in = new FileInputStream(sav);
@@ -113,9 +113,9 @@ public class ShipSaveParser extends Parser{
 		});
 		
 		ShipSave[] shipList = new ShipSave[fileList.length];
-		ShipSaveParser parser = new ShipSaveParser();
+		//ShipSaveParser parser = new ShipSaveParser();
 		for (int i = 0; i < shipList.length; i++) {			
-			ShipSave ss1 = parser.readShipSave(fileList[i]);
+			ShipSave ss1 = new ShipSave(fileList[i]);
 			shipList[i] = ss1;
 		}
 		return shipList;
