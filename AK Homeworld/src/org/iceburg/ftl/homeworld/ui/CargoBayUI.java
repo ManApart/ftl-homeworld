@@ -2,14 +2,11 @@ package org.iceburg.ftl.homeworld.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
 
@@ -20,7 +17,6 @@ import net.blerf.ftl.parser.SavedGameParser.ShipState;
 import net.blerf.ftl.parser.SavedGameParser.WeaponState;
 import net.blerf.ftl.xml.ShipBlueprint;
 
-import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
 import org.iceburg.ftl.homeworld.resource.ResourceClass;
 import org.iceburg.ftl.homeworld.model.ShipSave;
 

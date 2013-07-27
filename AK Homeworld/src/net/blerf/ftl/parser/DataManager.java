@@ -31,8 +31,8 @@ import net.blerf.ftl.xml.ShipChassis;
 import net.blerf.ftl.xml.SystemBlueprint;
 import net.blerf.ftl.xml.WeaponBlueprint;
 
-//import org.apache.log4j.LogManager;
-//import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 
 public class DataManager implements Closeable {
@@ -75,7 +75,7 @@ public class DataManager implements Closeable {
 	
 	private DataManager(File datsFolder) throws IOException, JAXBException {
 		
-		// log.trace("DataManager initialising");
+	//	log.trace("DataManager initialising");
 		
 		boolean meltdown = false;
 		ArrayList<InputStream> streams = new ArrayList<InputStream>();
@@ -84,24 +84,24 @@ public class DataManager implements Closeable {
 			dataParser = new MappedDatParser( new File(datsFolder, "data.dat") );
 	 		resourceParser = new MappedDatParser( new File(datsFolder, "resource.dat") );
 
-			// log.info("Reading Achievements...");
-			// log.debug("Reading 'data/achievements.xml'");
+	////log.og.info("Reading Achievements...");
+	//		log.debug("Reading 'data/achievements.xml'");
 			InputStream achStream = dataParser.getInputStream( "data/achievements.xml" );
 			streams.add(achStream);
 			achievements = dataParser.readAchievements( achStream );
 
-			// log.info("Reading Blueprints...");
-			// log.debug("Reading 'data/blueprints.xml'");
+	//		log.info("Reading Blueprints...");
+	//		log.debug("Reading 'data/blueprints.xml'");
 			InputStream blueStream = dataParser.getInputStream( "data/blueprints.xml" );
 			streams.add(blueStream);
 			blueprints = dataParser.readBlueprints( blueStream, "blueprints.xml" );
 
-			// log.debug("Reading 'data/autoBlueprints.xml'");
+	//		log.debug("Reading 'data/autoBlueprints.xml'");
 			InputStream autoBlueStream = dataParser.getInputStream( "data/autoBlueprints.xml" );
 			streams.add(autoBlueStream);
 			autoBlueprints = dataParser.readBlueprints( autoBlueStream, "autoBlueprints.xml" );
 
-			// log.info("Reading Events...");
+			//log.info("Reading Events...");
 			String[] eventsFileNames = new String[] { "events.xml", "newEvents.xml",
 				"events_crystal.xml", "events_engi.xml", "events_mantis.xml",
 				"events_rock.xml", "events_slug.xml", "events_zoltan.xml",
@@ -110,32 +110,32 @@ public class DataManager implements Closeable {
 
 			events = new LinkedHashMap<String, Encounters>();
 			for ( String eventsFileName : eventsFileNames ) {
-				// log.debug("Reading 'data/"+ eventsFileName +"'");
+				//log.debug("Reading 'data/"+ eventsFileName +"'");
 				InputStream tmpStream = dataParser.getInputStream( "data/"+ eventsFileName );
 				streams.add(tmpStream);
 				Encounters tmpEncounters = dataParser.readEvents( tmpStream, eventsFileName );
 				events.put( eventsFileName, tmpEncounters );
 			}
 
-			// log.info("Reading Crew Names...");
-			// log.debug("Reading 'data/names.xml'");
+			//log.info("Reading Crew Names...");
+			//log.debug("Reading 'data/names.xml'");
 			InputStream crewNamesStream = dataParser.getInputStream( "data/names.xml" );
 			streams.add(crewNamesStream);
 			List<CrewNameList> crewNameLists = dataParser.readCrewNames( crewNamesStream );
 
-			// log.info("Reading Ship Events...");
-			// log.debug("Reading 'data/events_ships.xml'");
+			//log.info("Reading Ship Events...");
+			//log.debug("Reading 'data/events_ships.xml'");
 			InputStream shipEventsStream = dataParser.getInputStream( "data/events_ships.xml" );
 			streams.add(shipEventsStream);
 			List<ShipEvent> shipEventList = dataParser.readShipEvents( shipEventsStream, "events_ships.xml" );
 
-			// log.info("Reading Background Image Lists...");
-			// log.debug("Reading 'data/events_imageList.xml'");
+			//log.info("Reading Background Image Lists...");
+			//log.debug("Reading 'data/events_imageList.xml'");
 			InputStream imageListsStream = dataParser.getInputStream( "data/events_imageList.xml" );
 			streams.add(imageListsStream);
 			List<BackgroundImageList> imageLists = dataParser.readImageLists( imageListsStream );
 
-			// log.info("Finished reading game resources.");
+			//log.info("Finished reading game resources.");
 
 			generalAchievements = new ArrayList<Achievement>();
 			for( Achievement ach : achievements )
@@ -255,8 +255,7 @@ public class DataManager implements Closeable {
 
 	public AugBlueprint getAugment( String id ) {
 		AugBlueprint result = augments.get(id);
-	//	if ( result == null )
-			// log.error( "No AugBlueprint found for id: "+ id );
+//		if ( result == null )//log.		log.error( "No AugBlueprint found for id: "+ id );
 		return result;
 	}
 
@@ -266,8 +265,8 @@ public class DataManager implements Closeable {
 
 	public DroneBlueprint getDrone( String id ) {
 		DroneBlueprint result = drones.get(id);
-	//	if ( result == null )
-			// log.error( "No DroneBlueprint found for id: "+ id );
+//		if ( result == null )
+//			log.error( "No DroneBlueprint found for id: "+ id );
 		return result;
 	}
 
@@ -277,15 +276,15 @@ public class DataManager implements Closeable {
 
 	public SystemBlueprint getSystem( String id ) {
 		SystemBlueprint result = systems.get(id);
-		//if ( result == null )
-			// log.error( "No SystemBlueprint found for id: "+ id );
+//		if ( result == null )
+//			log.error( "No SystemBlueprint found for id: "+ id );
 		return result;
 	}
 
 	public WeaponBlueprint getWeapon( String id ) {
 		WeaponBlueprint result = weapons.get(id);
-	//	if ( result == null )
-			// log.error( "No WeaponBlueprint found for id: "+ id );
+//		if ( result == null )
+//			log.error( "No WeaponBlueprint found for id: "+ id );
 		return result;
 	}
 
@@ -297,8 +296,8 @@ public class DataManager implements Closeable {
 		ShipBlueprint result = ships.get(id);
 		if ( result == null )  // TODO: Auto ships might need their own method.
 			result = autoShips.get(id);
-	//	if ( result == null )
-			// log.error( "No ShipBlueprint found for id: "+ id );
+//		if ( result == null )
+//			log.error( "No ShipBlueprint found for id: "+ id );
 		return result;
 	}
 	
@@ -333,10 +332,10 @@ public class DataManager implements Closeable {
 				shipLayouts.put( id, result );
 
 			} catch (FileNotFoundException e) {
-				// log.error( "No ShipLayout found for id: "+ id );
+			//	log.error( "No ShipLayout found for id: "+ id );
 
 			} catch (IOException e) {
-				// log.error( "An error occurred while parsing ShipLayout: "+ id, e );
+			//	log.error( "An error occurred while parsing ShipLayout: "+ id, e );
 
 			} finally {
 				try {if (in != null) in.close();}
@@ -358,13 +357,13 @@ public class DataManager implements Closeable {
 				shipChassisMap.put( id, result );
 
 			} catch (JAXBException e) {
-				// log.error( "Parsing XML failed for ShipChassis id: "+ id );
+			//	log.error( "Parsing XML failed for ShipChassis id: "+ id );
 
 			} catch (FileNotFoundException e) {
-				// log.error( "No ShipChassis found for id: "+ id );
+				//log.error( "No ShipChassis found for id: "+ id );
 
 			} catch (IOException e) {
-				// log.error( "An error occurred while parsing ShipChassis: "+ id, e );
+				//log.error( "An error occurred while parsing ShipChassis: "+ id, e );
 
 			} finally {
 				try {if (in != null) in.close();}
@@ -437,8 +436,8 @@ public class DataManager implements Closeable {
 
 	public ShipEvent getShipEventById( String id ) {
 		ShipEvent result = shipEvents.get(id);
-	//	if ( result == null )
-			// log.error( "No ShipEvent found for id: "+ id );
+//		if ( result == null )
+//			log.error( "No ShipEvent found for id: "+ id );
 		return result;
 	}
 

@@ -26,8 +26,8 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import org.xml.sax.SAXParseException;
 
-//import org.apache.log4j.LogManager;
-//import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 import net.blerf.ftl.model.ShipLayout;
 import net.blerf.ftl.xml.Achievement;
@@ -46,7 +46,7 @@ import net.blerf.ftl.xml.ShipEvents;
 
 public class MappedDatParser extends Parser implements Closeable {
 
-//	private static final Logger // log. = LogManager.getLogger(MappedDatParser.class);
+//	private static final Logger log = LogManager.getLogger(MappedDatParser.class);
 	private static final String BOM_UTF8 = "\uFEFF";
 
 	private HashMap<String,InnerFileInfo> innerFilesMap = new HashMap<String,InnerFileInfo>();
@@ -91,7 +91,7 @@ public class MappedDatParser extends Parser implements Closeable {
 	}
 
 	public List<Achievement> readAchievements(InputStream stream) throws IOException, JAXBException {
-		// log..trace("Reading achievements XML");
+		//log.trace("Reading achievements XML");
 
 		// Need to clean invalid XML and comments before JAXB parsing
 
@@ -132,7 +132,7 @@ public class MappedDatParser extends Parser implements Closeable {
 	}
 
 	public Blueprints readBlueprints(InputStream stream, String fileName) throws IOException, JAXBException {
-		// log..trace("Reading blueprints XML");
+		//log.trace("Reading blueprints XML");
 
 		// Need to clean invalid XML and comments before JAXB parsing
 
@@ -329,7 +329,7 @@ public class MappedDatParser extends Parser implements Closeable {
 	}
 
 	public ShipChassis readChassis(InputStream stream) throws IOException, JAXBException {
-		// log..trace("Reading ship chassis XML");
+		//log.trace("Reading ship chassis XML");
 
 		// Need to clean invalid XML and comments before JAXB parsing
 
@@ -370,7 +370,7 @@ public class MappedDatParser extends Parser implements Closeable {
 	}
 
 	public List<CrewNameList> readCrewNames(InputStream stream) throws IOException, JAXBException {
-		// log..trace("Reading crew name list XML");
+		//log.trace("Reading crew name list XML");
 
 		// Need to clean invalid XML and comments before JAXB parsing
 
@@ -410,7 +410,7 @@ public class MappedDatParser extends Parser implements Closeable {
 	}
 
 	public Encounters readEvents(InputStream stream, String fileName) throws IOException, JAXBException {
-		// log..trace("Reading events XML");
+		//log.trace("Reading events XML");
 
 		// Need to clean invalid XML and comments before JAXB parsing
 
@@ -645,7 +645,7 @@ public class MappedDatParser extends Parser implements Closeable {
 	}
 
 	public List<ShipEvent> readShipEvents(InputStream stream, String fileName) throws IOException, JAXBException {
-		// log..trace("Reading ship events XML");
+		//log.trace("Reading ship events XML");
 
 		// Need to clean invalid XML and comments before JAXB parsing
 
@@ -703,7 +703,7 @@ public class MappedDatParser extends Parser implements Closeable {
 	}
 
 	public List<BackgroundImageList> readImageLists(InputStream stream) throws IOException, JAXBException {
-		// log..trace("Reading background images XML");
+		//log.trace("Reading background images XML");
 
 		// Need to clean invalid XML and comments before JAXB parsing
 
@@ -755,8 +755,8 @@ public class MappedDatParser extends Parser implements Closeable {
 			result = u.unmarshal( new StreamSource(new StringReader(seq.toString())) );
 
 		} catch (JAXBException e) {
-			// log..debug("Error during xml parsing. Dumping document for review...");
-			// log..debug(seq); // Dump all the xml to the // log..
+			//log.debug("Error during xml parsing. Dumping document for review...");
+			//log.debug(seq); // Dump all the xml to the log.
 
 			Throwable linkedException = e.getLinkedException();
 			if ( linkedException instanceof SAXParseException ) {
@@ -767,7 +767,7 @@ public class MappedDatParser extends Parser implements Closeable {
 				try { badLine = getLineFromSequence( seq, exLineNum-1 ); }
 				catch (IndexOutOfBoundsException f) {}
 
-				// log..error( c.getSimpleName() +" parsing failed at line "+ exLineNum +" (1-based) of xml: "+ badLine );
+				//log.error( c.getSimpleName() +" parsing failed at line "+ exLineNum +" (1-based) of xml: "+ badLine );
 			}
 			throw e;
 		}
@@ -818,7 +818,7 @@ public class MappedDatParser extends Parser implements Closeable {
 	}
 
 	public void unpackDat(File outFolder) throws IOException {
-		// log..trace("Unpacking dat file " + datFile.getPath() + " into " + outFolder.getPath());
+		//log.trace("Unpacking dat file " + datFile.getPath() + " into " + outFolder.getPath());
 
 		byte[] buffer = new byte[4096];
 		int bytesRead;
@@ -828,7 +828,7 @@ public class MappedDatParser extends Parser implements Closeable {
 			String innerPath = entry.getKey();
 			InnerFileInfo info = entry.getValue();
 
-			// log..trace("Unpacking: " + innerPath + " ("+ info.dataSize +"b)");
+			//log.trace("Unpacking: " + innerPath + " ("+ info.dataSize +"b)");
 
 			File outFile = new File(outFolder, innerPath);
 			outFile.getParentFile().mkdirs();

@@ -25,13 +25,13 @@ import net.blerf.ftl.xml.ShipBlueprint;
 import net.blerf.ftl.xml.SystemBlueprint;
 import net.blerf.ftl.xml.WeaponBlueprint;
 
-//import org.apache.log4j.LogManager;
-//import org.apache.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
 
 public class SavedGameParser extends Parser {
 
-//	private static final Logger // log. = LogManager.getLogger(SavedGameParser.class);
+//	private static final Logger log = LogManager.getLogger(SavedGameParser.class);
 
 
 	public SavedGameState readSavedGame( File datFile ) throws IOException {
@@ -43,8 +43,8 @@ public class SavedGameParser extends Parser {
 
 			// This should always be 2.
 			int headerAlpha = readInt(in);
-			if ( headerAlpha != 2 )
-				// log..warn( "Unexpected first byte ("+ headerAlpha +"): it's either a bad file, or possibly too new for this tool" );
+//			if ( headerAlpha != 2 )
+//				log.warn( "Unexpected first byte ("+ headerAlpha +"): it's either a bad file, or possibly too new for this tool" );
 
 			gameState.setDifficultyEasy( readBool(in) );
 			gameState.setTotalShipsDefeated( readInt(in) );
@@ -165,8 +165,8 @@ public class SavedGameParser extends Parser {
 
 	public void writeSavedGame( OutputStream out, SavedGameState gameState ) throws IOException {
 
-		if ( gameState.getMysteryList().size() > 0 )
-			// log..warn( "The original saved game file contained mystery bytes, which will be omitted in the new file" );
+//		if ( gameState.getMysteryList().size() > 0 )
+//			log.warn( "The original saved game file contained mystery bytes, which will be omitted in the new file" );
 
 		// This should always be 2.
 		writeInt( out, 2 );
