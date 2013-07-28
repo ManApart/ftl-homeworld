@@ -7,13 +7,19 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import net.blerf.ftl.parser.DataManager;
+import net.blerf.ftl.parser.SavedGameParser;
+import net.blerf.ftl.parser.SavedGameParser.DoorState;
+import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
+import net.blerf.ftl.parser.SavedGameParser.ShipState;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.Properties;
 
 import javax.swing.filechooser.FileFilter;
@@ -45,10 +51,16 @@ import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 //Start on warehouse parser
 //Add look and feel code
 
+//Look in saves folder for Homeworld.sav
+//If none found, give option to browse or create
+//On browse, store location in cfg file
+//Create Homeworld.save
+
 
 public class FTLHomeworld {
 //	private static final Logger log = LogManager.getLogger(FTLHomeworld.class);
 	public static File save_location = null;
+	public static File homeworld_save = null;
 	public static File datsPath = null;	
 	
 	/**
@@ -96,13 +108,26 @@ public class FTLHomeworld {
 
 		//FTL Save Path.
 		String savePathString = config.getProperty("ftlSavePath");
-
 		if ( savePathString != null ) {
 			// log.info( "Using FTL dats path from config: " + savePathString );
 			save_location = new File(savePathString);
 			if ( isSavePathValid(save_location) == false ) {
 				// log.error( "The config's ftlSavePath does not exist." );
 				save_location = null;
+			}
+		} else {
+			// log.trace( "No FTL save path previously set." );
+		}
+		
+		//FTL Homeworld.sav Path.
+		String homeworldSaveString = config.getProperty("HomeworldSave");
+
+		if ( homeworldSaveString != null ) {
+			// log.info( "Using FTL dats path from config: " + savePathString );
+			homeworld_save = new File(homeworldSaveString);
+			if ( isHomeworldPathValid(homeworld_save) == false ) {
+				// log.error( "The config's ftlSavePath does not exist." );
+				homeworld_save = null;
 			}
 		} else {
 			// log.trace( "No FTL save path previously set." );
@@ -163,6 +188,32 @@ public class FTLHomeworld {
 			// log.debug( "No FTL save path found, exiting." );
 			System.exit(1);
 		}
+		
+		// Find/prompt for the Homeworld.sav path to set in the config.
+		if ( homeworld_save == null ) {
+			for ( File file : FTLHomeworld.getPossibleUserDataLocations("Homeworld.sav") ) {
+			      if ( file.exists() ) {
+			    	  homeworld_save = file;
+			        break;
+			      }
+			}
+			if ( homeworld_save != null ) {
+				int response = JOptionPane.showConfirmDialog(null, "FTL Homeworld.sav found in:\n"+ save_location.getPath() +"\nIs this correct?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if ( response == JOptionPane.NO_OPTION ) homeworld_save = null;
+			}
+
+			if ( homeworld_save == null ) {
+				// log.debug("FTL saves path was not located automatically. Prompting user for location.");
+				homeworld_save = promptForHomeworldSave();
+			}
+
+			if ( homeworld_save != null ) {
+				config.setProperty( "HomeworldSave", homeworld_save.getAbsolutePath() );
+				writeConfig = true;
+				// log.info( "FTL saves located at: " + save_location.getAbsolutePath() );
+			}
+		}
+				
 		OutputStream out = null;
 		if ( writeConfig ) {
 			try {
@@ -208,7 +259,51 @@ public class FTLHomeworld {
 			// Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		if ( homeworld_save == null ) {
+			showErrorDialog( "Homeworld.sav was not found.\nFTL Homeworld will create one in the save folder" );
+			// log.debug( "No FTL dats path found, exiting." );
+			//TODO Create new Homeworld.sav
+			SavedGameParser parser = new SavedGameParser();
+			File homeworldFile = new File(save_location + "\\Homeworld.sav");
+			//OutputStream out = null;
+			SavedGameState homeSave = new SavedGameState();
+			homeSave.setPlayerShipState(new ShipState("Spacedock Storage", "PLAYER_SHIP_EASY", "kestral", "kestral", false));
+			DoorState ds = new DoorState(false, false);
+//			for (homeSave.getPlayerShipState().getDoorMap() : ) {
+//				
+//			}
+//			homeSave.getPlayerShipState().getDoorMap().put(key, ds);
+			try {
+				out = new FileOutputStream(homeworldFile);
+				parser.writeSavedGame(out, homeSave);
+				//write the new save to config
+				homeworld_save = homeworldFile;
+				config.setProperty( "HomeworldSave", homeworld_save.getAbsolutePath() );
+				writeConfig = true;
+				// log.info( "FTL saves located at: " + save_location.getAbsolutePath() );
+			} catch (FileNotFoundException e) {
+				// Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				if ( out != null ) { try { out.close(); } catch (IOException e) {e.printStackTrace();} }
+			}
+			if ( homeworld_save == null ) {
+				showErrorDialog( "Homeworld save file was not able to be created.\nFTL Homeworld will now exit." );
+				// log.debug( "No Homeworld.sav found, exiting." );
+				System.exit(1);
+			}
+			
+			
+		}
 	}
+	
+	
+	
+	
 	
 		public static void launchFTL() {
 			System.out.println("launched");
@@ -237,6 +332,9 @@ public class FTLHomeworld {
 		}
 		private static boolean isDatsPathValid(File path) {
 			return (path.exists() && path.isDirectory() && new File(path,"data.dat").exists());
+		}
+		private static boolean isHomeworldPathValid(File path) {
+			return (path.exists() && path.isDirectory() && new File(path,"Homeworld.sav").exists());
 		}
 		private static boolean isSavePathValid(File path) {
 			return (path.exists() && path.isDirectory());
@@ -319,6 +417,42 @@ public class FTLHomeworld {
 
 			if ( ftlPath != null && isSavePathValid(ftlPath) ) {
 				return ftlPath;
+			}
+
+			return null;
+		}
+		public static File promptForHomeworldSave() {
+			File f = null;
+			
+			String message = "FTL Homeworld stores items in Homeworld.sav,\n";
+			message += "but the path to Homeworld.sav could not be guessed.\n\n";
+			message += "You will now be prompted to locate it manually.\n";
+			message += "If not located, a new Homeworld.sav will be created.'\n";
+			JOptionPane.showMessageDialog(null,  message, "Homeworld.sav Not Found", JOptionPane.INFORMATION_MESSAGE);
+
+			final JFileChooser fc = new JFileChooser();
+			fc.setDialogTitle( "Find Homeworld.sav" );
+			fc.addChoosableFileFilter( new FileFilter() {
+				@Override
+				public String getDescription() {
+					return "FTL Data File - /Documents/My Games/FasterThanLight/continue.sav";
+				}
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory() || f.getName().equals("Homeworld.sav");
+				}
+			});
+			fc.setMultiSelectionEnabled(false);
+
+			if ( fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ) {
+				f = fc.getSelectedFile();
+				// log.trace( "User selected: " + ftlPath.getAbsolutePath() );
+			} else {
+				// log.trace( "User cancelled FTL dats path selection." );
+			}
+
+			if ( f != null && isHomeworldPathValid(f) ) {
+				return f;
 			}
 
 			return null;

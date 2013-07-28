@@ -39,7 +39,7 @@ import javax.swing.JLabel;
 
 //TODO
 
-public class SpaceDockUI extends JPanel {
+public class SpaceDockUI extends JPanel implements ActionListener {
 
 //	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
 	public ArrayList<ShipSave> myShips;
@@ -106,18 +106,17 @@ public class SpaceDockUI extends JPanel {
 		rightPanel.setOpaque(false);
 		setOpaque(false);
 		
-		ButtonListener buttonListener = new ButtonListener();
 		
 		launchbtn = new JButton("Launch FTL");
-		launchbtn.addActionListener(buttonListener);
+		launchbtn.addActionListener(this);
 		rightPanel.add(launchbtn);
 		
 		refreshbtn = new JButton("Refresh");
-		refreshbtn.addActionListener(buttonListener);
+		refreshbtn.addActionListener(this);
 		rightPanel.add(refreshbtn);
 		
 		loadSavesbtn = new JButton("Saves Folder");
-		loadSavesbtn.addActionListener(buttonListener);
+		loadSavesbtn.addActionListener(this);
 		rightPanel.add(loadSavesbtn);
 		
 		for (int i = 0; i < myShips.size(); i++) {			
@@ -163,7 +162,7 @@ public class SpaceDockUI extends JPanel {
 			btnToShipMap.put(myShips.get(i).boardbtn, myShips.get(i));
 			//add to a button array so we can use the index to match the button to the ship		
 			loopPanel.add(myShips.get(i).boardbtn);
-			myShips.get(i).boardbtn.addActionListener(buttonListener);
+			myShips.get(i).boardbtn.addActionListener(this);
 				
 			loopPanel.add(Box.createRigidArea(new Dimension(25, 10)));
 			subPanel.add(loopPanel);
@@ -173,52 +172,52 @@ public class SpaceDockUI extends JPanel {
 	}
 
 	
-	class ButtonListener implements ActionListener {
-		public void actionPerformed(ActionEvent ae) {				
-			JButton o = (JButton) ae.getSource();
-			ShipSave myShip = btnToShipMap.get(o);
-					
-			if (btnToShipMap.containsKey(o)) {
-				//connect the button to the proper ship 
-				//Thanks to KartoFlane and Vhati for finally giving me a better way to do this!
-				if (myShip.equals(currentShip)) {
-		    	   o.setText("Board");	    	   
-		    	   ShipSave.dockShip(myShip, myShips.size());
-		    	   currentShip = null;
-		    	   
-				} else {
-		    	   o.setText("Dock");
-		          //if they have boarded a ship, dock it before boarding new one; 
-		    	   if  (currentShip != null) {
-		    		   //Find which ship has the file, dock it, and then update it's button
-		    		  // System.out.println("Already manning a ship!");
-		    		   ShipSave.dockShip(currentShip, myShips.size());
-		    		   o.setText("Board");
-		    		   currentShip = null;
-		    	   }  
-		    	   ShipSave.boardShip(myShip);
-		    	   currentShip = myShip;
-			       
-				}
+
+	public void actionPerformed(ActionEvent ae) {				
+		JButton o = (JButton) ae.getSource();
+		ShipSave myShip = btnToShipMap.get(o);
+				
+		if (btnToShipMap.containsKey(o)) {
+			//connect the button to the proper ship 
+			//Thanks to KartoFlane and Vhati for finally giving me a better way to do this!
+			if (myShip == currentShip) {
+	    	   o.setText("Board");	    	   
+	    	   ShipSave.dockShip(myShip, myShips.size());
+	    	   currentShip = null;
+	    	   
+			} else {
+	    	   o.setText("Dock");
+	          //if they have boarded a ship, dock it before boarding new one; 
+	    	   if  (currentShip != null) {
+	    		   //Find which ship has the file, dock it, and then update it's button
+	    		  // System.out.println("Already manning a ship!");
+	    		   ShipSave.dockShip(currentShip, myShips.size());
+	    		   o.setText("Board");
+	    		   currentShip = null;
+	    	   }  
+	    	   ShipSave.boardShip(myShip);
+	    	   currentShip = myShip;
+		       
 			}
-			else {
-				if (o.equals(loadSavesbtn)) {
-					//System.out.println("save folders");
-					File newSaves = FTLHomeworld.promptForSavePath();
-					if (newSaves != null){FTLHomeworld.save_location = newSaves;}
-					init();
-				}
-				else if (o.equals(refreshbtn)) {
-					//System.out.println("Refreshed");
-					init();
-					
-				}
-				else if (o.equals(launchbtn)) {
-					FTLHomeworld.launchFTL();
-				}
-			}	
 		}
+		else {
+			if (o == loadSavesbtn) {
+				//System.out.println("save folders");
+				File newSaves = FTLHomeworld.promptForSavePath();
+				if (newSaves != null){FTLHomeworld.save_location = newSaves;}
+				init();
+			}
+			else if (o == refreshbtn) {
+				//System.out.println("Refreshed");
+				init();
+				
+			}
+			else if (o == launchbtn) {
+				FTLHomeworld.launchFTL();
+			}
+		}	
 	}
+	
 	
 	
 	

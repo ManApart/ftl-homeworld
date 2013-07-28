@@ -109,7 +109,7 @@ public class ShipSaveParser extends Parser{
 	public static ArrayList<ShipSave> getShipsList() {
 		File[] fileList = FTLHomeworld.save_location.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				return (name.toLowerCase().endsWith(".sav") && !name.contains("prof") );
+				return (name.toLowerCase().endsWith(".sav") && !name.contains("prof") && !name.contains("Homeworld.sav") );
 			}
 		});
 		

@@ -12,6 +12,8 @@ import javax.swing.JSpinner;
 
 import net.blerf.ftl.parser.DataManager;
 import net.blerf.ftl.parser.SavedGameParser;
+import net.blerf.ftl.parser.SavedGameParser.CrewState;
+import net.blerf.ftl.parser.SavedGameParser.DroneState;
 import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 import net.blerf.ftl.parser.SavedGameParser.ShipState;
 import net.blerf.ftl.parser.SavedGameParser.WeaponState;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 //Event Handlers
 //Cargo Parser
 
+//ShipState readship() is line 247 of SavedGameParser
 public class CargoBayUI extends JPanel {
 	ShipSave currentShip;	//the ship selected from spacedock
 	SavedGameState currentSave; //the actual save that the above represents
@@ -50,10 +53,14 @@ public class CargoBayUI extends JPanel {
   
     
 	public CargoBayUI(ShipSave spaceDock) {
+		this.init(spaceDock);
+	}	
+	public void init(ShipSave spaceDock) {
+		this.removeAll();
 		//First, get the current ship we're working with
 		this.currentShip = spaceDock;
 		//if there is no current ship, set some null values
-		if (currentShip == null) {
+		if (currentShip == null || (currentShip.getshipFilePath().exists() == false)) {
 			currentSave = new SavedGameState();
 			currentSave.setPlayerShipName("No Ship Selected");
 			currentState = new ShipState("No Ship Selected", new ShipBlueprint(), false);
@@ -72,15 +79,25 @@ public class CargoBayUI extends JPanel {
 		//now, let's make the UI
 		setPreferredSize(new Dimension(1280, 720));
 		setLayout(null);
+		//display shipSelect
+		JComboBox shipSelectCB = new JComboBox();
+		shipSelectCB.setBounds(1005, 97, 125, 20);
+		add(shipSelectCB);
 		
+		currentShipInit();
+		tradeShipInit();
+	}
+	
+	
+	
+	
+	public void currentShipInit() {
+		//Populate with currentSave Data
 		JLabel shipName = new JLabel(currentSave.getPlayerShipName());
 		shipName.setForeground(Color.WHITE);
 		shipName.setBounds(50, 200, 97, 14);
 		add(shipName);
 		
-		JSpinner cargoScrapSP = new JSpinner();
-		cargoScrapSP.setBounds(110, 260, 60, 20);
-		add(cargoScrapSP);
 		
 		JSpinner shipScrapSP = new JSpinner();
 		shipScrapSP.setBounds(110, 305, 60, 20);
@@ -92,55 +109,115 @@ public class CargoBayUI extends JPanel {
 		shipFuelSP.setValue(currentState.getFuelAmt());
 		add(shipFuelSP);
 		
-		JSpinner cargoFuelSP = new JSpinner();
-		cargoFuelSP.setBounds(148, 423, 60, 20);
-		add(cargoFuelSP);
+		String s;
 		
 		//Convert weapons list to string array for combo box
 		ArrayList<String> shipWeaponList = new ArrayList<String>();
-		for (WeaponState w: currentState.getWeaponList()) {
-			String s = DataManager.get().getWeapon(w.getWeaponId()).getTitle();
+		s = new String("No Weapons!");
+		if (currentState.getWeaponList().size() > 0){
+			for (WeaponState w: currentState.getWeaponList()) {
+				s = DataManager.get().getWeapon(w.getWeaponId()).getTitle();
+				shipWeaponList.add(s);
+			}
+		}
+		else {
 			shipWeaponList.add(s);
 		}
 		//display weapons' names
 		JComboBox shipWeaponsCB = new JComboBox(shipWeaponList.toArray());
 		shipWeaponsCB.setBounds(430, 550, 200, 20);
 		add(shipWeaponsCB);
-		
-		
-		//TODO Cargo weapons' names
-		JComboBox cargoWeaponsCB = new JComboBox();
-		cargoWeaponsCB.setBounds(720, 550, 200, 20);
-		add(cargoWeaponsCB);
-		
-		//TODO
+			
 		//Convert augment list to string array for combo box
 		ArrayList<String> shipAugList = new ArrayList<String>();
-		for (WeaponState w: currentState.getWeaponList()) {
-			String s = DataManager.get().getWeapon(w.getWeaponId()).getTitle();
+		s = new String("No Augments!");
+		if (currentState.getAugmentIdList().size() > 0){
+			for (String aug: currentState.getAugmentIdList()) {
+				s = DataManager.get().getAugment(aug).getTitle();
+				shipAugList.add(s);
+			}
+		}
+		else {
 			shipAugList.add(s);
 		}
 		//display shipAugment names
 		JComboBox shipAugCB = new JComboBox(shipAugList.toArray());
-		shipAugCB.setBounds(1010, 530, 200, 20);
+		shipAugCB.setBounds(1010, 550, 200, 20);
 		add(shipAugCB);
 		
-		//TODO Cargo Augment names
-		JComboBox cargoAugCB = new JComboBox();
-		cargoAugCB.setBounds(720, 550, 200, 20);
-		add(cargoAugCB);
-		
-		//TODO
 		//Convert drone list to string array for combo box
 		ArrayList<String> shipDroneList = new ArrayList<String>();
-		for (WeaponState w: currentState.getWeaponList()) {
-			String s = DataManager.get().getWeapon(w.getWeaponId()).getTitle();
+		s = new String("No Drones!");
+		if (currentState.getDroneList().size() > 0){
+			for (DroneState d: currentState.getDroneList()) {
+				s = DataManager.get().getDrone(d.getDroneId()).getTitle();	
+				shipDroneList.add(s);
+			}
+		}
+		else {
 			shipDroneList.add(s);
 		}
-		//display shipAugment names 
+		//display shipDrone names 
 		JComboBox shipDroneCB = new JComboBox(shipDroneList.toArray());
-		shipAugCB.setBounds(1010, 530, 200, 20);
+		shipDroneCB.setBounds(430, 650, 200, 20);
 		add(shipDroneCB);
+		
+		//Convert crew list to string array for combo box
+		ArrayList<String> shipCrewList = new ArrayList<String>();
+		s = new String("No Crew!");
+		if (currentState.getDroneList().size() > 0){
+			for (CrewState c: currentState.getCrewList()) {
+				shipCrewList.add(c.getName());
+			}
+		}
+		else {
+			shipCrewList.add(s);
+		}
+		//display shipCrew names 
+		JComboBox shipCrewCB = new JComboBox(shipCrewList.toArray());
+		shipCrewCB.setBounds(45, 650, 125, 20);
+		add(shipCrewCB);
+		
+		//display shipCargo names 
+		ArrayList<String> shipCargoList = new ArrayList<String>();
+		shipCargoList.addAll(shipWeaponList);
+		shipCargoList.addAll(shipAugList);
+		shipCargoList.addAll(shipDroneList);
+		shipCargoList.addAll(shipCrewList);
+		JComboBox shipCargoCB = new JComboBox(shipCargoList.toArray());
+		shipCargoCB.setBounds(45, 550, 125, 20);
+		add(shipCargoCB);
+		
+	}
+	public void tradeShipInit() {
+		//TODO Populate with Tradeship data
+		JSpinner tradeScrapSP = new JSpinner();
+		tradeScrapSP.setBounds(110, 260, 60, 20);
+		add(tradeScrapSP);
+		
+		JSpinner tradeFuelSP = new JSpinner();
+		tradeFuelSP.setBounds(148, 423, 60, 20);
+		add(tradeFuelSP);
+		
+		JComboBox tradeWeaponsCB = new JComboBox();
+		tradeWeaponsCB.setBounds(720, 550, 200, 20);
+		add(tradeWeaponsCB);
+		
+		JComboBox tradeAugCB = new JComboBox();
+		tradeAugCB.setBounds(1010, 650, 200, 20);
+		add(tradeAugCB);
+		
+		JComboBox tradeDroneCB = new JComboBox();
+		tradeDroneCB.setBounds(720, 650, 200, 20);
+		add(tradeDroneCB);
+		
+		JComboBox tradeCrewCB = new JComboBox();
+		tradeCrewCB.setBounds(230, 650, 125, 20);
+		add(tradeCrewCB);
+		
+		JComboBox tradeCargoCB = new JComboBox();
+		tradeCargoCB.setBounds(230, 550, 125, 20);
+		add(tradeCargoCB);
 		
 	}
 }
