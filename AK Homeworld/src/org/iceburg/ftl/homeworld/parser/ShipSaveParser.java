@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 import org.iceburg.ftl.homeworld.core.FTLHomeworld;
 import org.iceburg.ftl.homeworld.model.ShipSave;
@@ -105,29 +106,29 @@ public class ShipSaveParser extends Parser{
 
 
 
-	public static ShipSave[] getShipsList() {
+	public static ArrayList<ShipSave> getShipsList() {
 		File[] fileList = FTLHomeworld.save_location.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return (name.toLowerCase().endsWith(".sav") && !name.contains("prof") );
 			}
 		});
 		
-		ShipSave[] shipList = new ShipSave[fileList.length];
+		ArrayList<ShipSave> shipList = new ArrayList<ShipSave>();
 		//ShipSaveParser parser = new ShipSaveParser();
-		for (int i = 0; i < shipList.length; i++) {			
+		for (int i = 0; i < fileList.length; i++) {			
 			ShipSave ss1 = new ShipSave(fileList[i]);
-			shipList[i] = ss1;
+			shipList.add(ss1);
 		}
 		return shipList;
 	}
 	
 	
 	//TODO Test
-	public static ShipSave findCurrentShip(ShipSave[] myShips, File currentFile) {
-		for (int i = 0; i < myShips.length; i++) {			
-			if (myShips[i].getshipFilePath().equals(currentFile)) {
+	public static ShipSave findCurrentShip(ArrayList<ShipSave> myShips, File currentFile) {
+		for (int i = 0; i < myShips.size(); i++) {			
+			if (myShips.get(i).getshipFilePath().equals(currentFile)) {
 				//add to UI's current ship
-				return myShips[i];
+				return myShips.get(i);
 			}
 			
 		}

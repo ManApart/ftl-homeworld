@@ -1,6 +1,7 @@
 package org.iceburg.ftl.homeworld;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
 import org.iceburg.ftl.homeworld.model.ShipSave;
@@ -71,16 +72,16 @@ public class ShipSaveParserTest {
 				parser.writeShipSave(ss3));
 		
 		//get the list of ships
-		ShipSave[] myShips = ShipSaveParser.getShipsList();
+		ArrayList<ShipSave> myShips = ShipSaveParser.getShipsList();
 		
 		//compare
-		assertTrue("Failed to get proper number of files", myShips.length == 4); 
+		assertTrue("Failed to get proper number of files", myShips.size() == 4); 
 		assertTrue("File path did not match", 
-				myShips[1].getshipFilePath().getName().equals("continue_1.sav"));
+				myShips.get(1).getshipFilePath().getName().equals("continue_1.sav"));
 		assertEquals("Ship's name did not match", 
-				"Enterprise", myShips[1].getPlayerShipName());
+				"Enterprise", myShips.get(1).getPlayerShipName());
 		assertEquals("Ship's blueprint ID did not match",
-				"NCC-1701-D", myShips[1].getPlayerShipBlueprintId());
+				"NCC-1701-D", myShips.get(1).getPlayerShipBlueprintId());
 		//may emit a false positive if out/in are iterative and therefore the whole file must be written at once
 		
 	}

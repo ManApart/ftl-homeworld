@@ -19,7 +19,6 @@ public class ShipSave extends SavedGameState {
 	public File shipFilePath;
 	public JButton boardbtn;
 	public String imageInnerPath;
-	public ShipSave self; //KartoFlane, you're a genius
 			
 	public void setshipFilePath( File filePath) {
 		shipFilePath = filePath;
@@ -28,10 +27,8 @@ public class ShipSave extends SavedGameState {
 
 	public ShipSave(File file) {
 		shipFilePath = file;
-	//	boardbtn = new JButton();
+		boardbtn = new JButton();
 		new ShipSaveParser().readShipSave(this);
-		self = this;
-
 		
 	}
 	

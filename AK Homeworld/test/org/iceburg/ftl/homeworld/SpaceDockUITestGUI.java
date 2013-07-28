@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -49,7 +50,7 @@ public class SpaceDockUITestGUI {
 	 */
 	private void initialize() {
 		//initializ - get ships/file to display
-		ShipSave[] myShips = ShipSaveParser.getShipsList();
+		ArrayList<ShipSave> myShips = ShipSaveParser.getShipsList();
 		
 		
 		frmSpaceDock = new JFrame();
@@ -74,17 +75,17 @@ public class SpaceDockUITestGUI {
 			}
 		});
 		loopPanel.add(btnButtonbutton);
-		JLabel lblShipName = new JLabel(myShips[i].getPlayerShipName());
+		JLabel lblShipName = new JLabel(myShips.get(i).getPlayerShipName());
 		frmSpaceDock.getContentPane().add(lblShipName);
-		JLabel lblExplored = new JLabel(myShips[i].getTotalBeaconsExplored() + " beacons explored.");
+		JLabel lblExplored = new JLabel(myShips.get(i).getTotalBeaconsExplored() + " beacons explored.");
 		frmSpaceDock.getContentPane().add(lblExplored);
 
-		System.out.println(myShips[i].getshipFilePath());
+		System.out.println(myShips.get(i).getshipFilePath());
 		File currentFile = 
-				new File(myShips[i].getshipFilePath().getParentFile() + "\\continue.sav");
+				new File(myShips.get(i).getshipFilePath().getParentFile() + "\\continue.sav");
 		System.out.println(currentFile);
 		JButton btnBoard = null;
-		if (myShips[i].getshipFilePath().equals(currentFile)) {
+		if (myShips.get(i).getshipFilePath().equals(currentFile)) {
 		btnBoard = new JButton("Dock");
 		}
 		else {
