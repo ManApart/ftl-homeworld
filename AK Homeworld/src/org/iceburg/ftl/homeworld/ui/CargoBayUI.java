@@ -20,10 +20,15 @@ import net.blerf.ftl.parser.SavedGameParser.WeaponState;
 import net.blerf.ftl.xml.ShipBlueprint;
 
 import org.iceburg.ftl.homeworld.resource.ResourceClass;
+import org.iceburg.ftl.homeworld.core.FTLHomeworld;
 import org.iceburg.ftl.homeworld.model.ShipSave;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 //TODO
@@ -34,6 +39,7 @@ import java.util.ArrayList;
 public class CargoBayUI extends JPanel {
 	ShipSave currentShip;	//the ship selected from spacedock
 	SavedGameState currentSave; //the actual save that the above represents
+	SavedGameState tradeSave; 
 	ShipState currentState;		//the shipstate for the currentsave	
 	BufferedImage bg  = null;
 	ImageIcon img = null;
@@ -76,6 +82,49 @@ public class CargoBayUI extends JPanel {
 			
 			currentState = currentSave.getPlayerShipState();
 		}
+		//TODO -this generates a new file based on current file, I'd rather do this in FTL's main file
+		//and that way make a blank dummy file, but this may work for now
+		//This won't work because currentstate may be made up!
+//		if ( FTLHomeworld.homeworld_save == null ) {
+//			FTLHomeworld.showErrorDialog( "Homeworld.sav was not found.\nFTL Homeworld will create one in the save folder" );
+//			// log.debug( "No FTL dats path found, exiting." );
+//			// Create new Homeworld.sav
+//			SavedGameParser parser = new SavedGameParser();
+//			File homeworldFile = new File(FTLHomeworld.save_location + "\\Homeworld.sav");
+//			OutputStream out = null;
+//			//Read current save and rewrite it as dummy!
+//			if (homeworldFile.exists() == false) {
+//				try {
+//					currentSave = parser.readSavedGame(currentShip.getshipFilePath());
+//				} catch (IOException e) {
+//					// Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				//TODO - Remove weapons, drones, scrap etc before writing new save file
+//				currentSave.getPlayerShipState().setScrapAmt(0);
+//				currentSave.getPlayerShipState().setShipName("Spacedock Cargo");
+//				
+//				try {
+//					out = new FileOutputStream(homeworldFile);
+//					parser.writeSavedGame(out, currentSave);
+//					// log.info( "FTL saves located at: " + save_location.getAbsolutePath() );
+//					FTLHomeworld.homeworld_save = homeworldFile;
+//				} catch (FileNotFoundException e) {
+//					// Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					// Auto-generated catch block
+//					e.printStackTrace();
+//				} finally {
+//					if ( out != null ) { try { out.close(); } catch (IOException e) {e.printStackTrace();} }
+//				}
+//			}
+//			if ( FTLHomeworld.homeworld_save == null ) {
+//				FTLHomeworld.showErrorDialog( "Homeworld save file was not able to be created.\nFTL Homeworld will now exit." );
+//				// log.debug( "No Homeworld.sav found, exiting." );
+//				System.exit(1);
+//			}
+//		}
 		//now, let's make the UI
 		setPreferredSize(new Dimension(1280, 720));
 		setLayout(null);

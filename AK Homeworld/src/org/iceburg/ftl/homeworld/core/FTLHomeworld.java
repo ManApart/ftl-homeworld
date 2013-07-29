@@ -6,11 +6,17 @@ import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import net.blerf.ftl.model.ShipLayout;
+import net.blerf.ftl.model.ShipLayout.DoorCoordinate;
 import net.blerf.ftl.parser.DataManager;
 import net.blerf.ftl.parser.SavedGameParser;
 import net.blerf.ftl.parser.SavedGameParser.DoorState;
+import net.blerf.ftl.parser.SavedGameParser.RebelFlagshipState;
 import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 import net.blerf.ftl.parser.SavedGameParser.ShipState;
+import net.blerf.ftl.parser.SavedGameParser.SystemType;
+import net.blerf.ftl.xml.ShipBlueprint;
+import net.blerf.ftl.xml.SystemBlueprint;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,8 +25,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 import javax.xml.bind.JAXBException;
@@ -197,6 +208,13 @@ public class FTLHomeworld {
 			        break;
 			      }
 			}
+			//Is it with the other saves, wherever that is?
+			File file = new File(save_location + "//Homeworld.sav");
+			if (file.exists()) {
+				System.out.println("Homeworld found in saves");
+				homeworld_save = file;
+			}
+			
 			if ( homeworld_save != null ) {
 				int response = JOptionPane.showConfirmDialog(null, "FTL Homeworld.sav found in:\n"+ save_location.getPath() +"\nIs this correct?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if ( response == JOptionPane.NO_OPTION ) homeworld_save = null;
@@ -259,7 +277,7 @@ public class FTLHomeworld {
 			// Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		//TODO
 		if ( homeworld_save == null ) {
 			showErrorDialog( "Homeworld.sav was not found.\nFTL Homeworld will create one in the save folder" );
 			// log.debug( "No FTL dats path found, exiting." );
@@ -267,13 +285,12 @@ public class FTLHomeworld {
 			SavedGameParser parser = new SavedGameParser();
 			File homeworldFile = new File(save_location + "\\Homeworld.sav");
 			//OutputStream out = null;
+			
 			SavedGameState homeSave = new SavedGameState();
 			homeSave.setPlayerShipState(new ShipState("Spacedock Storage", "PLAYER_SHIP_EASY", "kestral", "kestral", false));
-			DoorState ds = new DoorState(false, false);
-//			for (homeSave.getPlayerShipState().getDoorMap() : ) {
-//				
-//			}
-//			homeSave.getPlayerShipState().getDoorMap().put(key, ds);
+			createShip(homeSave, DataManager.get().getShip("PLAYER_SHIP_EASY"),false);
+			homeSave.setRebelFlagshipState(new RebelFlagshipState(new String[1]));
+			
 			try {
 				out = new FileOutputStream(homeworldFile);
 				parser.writeSavedGame(out, homeSave);
@@ -511,5 +528,88 @@ public class FTLHomeworld {
 		    };
 		
 		    return locations;
+		}
+		
+		private static void createShip(SavedGameState game, ShipBlueprint shipBlueprint, boolean auto ) {
+			SavedGameParser.SavedGameState gameState = game;
+			if ( gameState == null ) return;
+
+			// Apply all other pending changes.
+			//frame.updateGameState( gameState );
+
+
+
+			ShipLayout shipLayout = DataManager.get().getShipLayout( shipBlueprint.getLayout() );
+
+			SavedGameParser.ShipState shipState = new SavedGameParser.ShipState( "The Nameless One", shipBlueprint, auto );
+
+			// Systems.
+			int reservePowerCapacity = 0;
+			for ( SystemType systemType : SystemType.values() ) {
+				SavedGameParser.SystemState systemState = new SavedGameParser.SystemState( systemType );
+
+				// Set capacity for systems that're initially present.
+				ShipBlueprint.SystemList.SystemRoom[] systemRoom = shipBlueprint.getSystemList().getSystemRoom( systemType );
+				if ( systemRoom != null ) {
+					Boolean start = systemRoom[0].getStart();
+					if ( start == null || start.booleanValue() == true ) {
+						SystemBlueprint systemBlueprint = DataManager.get().getSystem( systemType.getId() );
+						systemState.setCapacity( systemBlueprint.getStartPower() );
+
+						if ( systemType.isSubsystem() ) {
+							systemState.setPower( systemState.getCapacity() );
+						} else {
+							reservePowerCapacity += systemState.getCapacity();
+						}
+					}
+				}
+				shipState.addSystem( systemState );
+			}
+			reservePowerCapacity = Math.max( reservePowerCapacity, shipBlueprint.getMaxPower().amount );
+			shipState.setReservePowerCapacity( reservePowerCapacity );
+
+			// Rooms.
+			for (int r=0; r < shipLayout.getRoomCount(); r++) {
+				EnumMap<ShipLayout.RoomInfo, Integer> roomInfoMap = shipLayout.getRoomInfo(r);
+				int squaresH = roomInfoMap.get( ShipLayout.RoomInfo.SQUARES_H ).intValue();
+				int squaresV = roomInfoMap.get( ShipLayout.RoomInfo.SQUARES_V ).intValue();
+
+				SavedGameParser.RoomState roomState = new SavedGameParser.RoomState();
+				for (int s=0; s < squaresH*squaresV; s++) {
+					roomState.addSquare( 0, 0, -1);
+				}
+				shipState.addRoom( roomState );
+			}
+
+			// Doors.
+			Map<ShipLayout.DoorCoordinate, EnumMap<ShipLayout.DoorInfo,Integer>> layoutDoorMap = shipLayout.getDoorMap();
+			for ( Map.Entry<ShipLayout.DoorCoordinate, EnumMap<ShipLayout.DoorInfo,Integer>> entry : layoutDoorMap.entrySet() ) {
+				ShipLayout.DoorCoordinate doorCoord = entry.getKey();
+				EnumMap<ShipLayout.DoorInfo,Integer> doorInfo = entry.getValue();
+
+				shipState.setDoor( doorCoord.x, doorCoord.y, doorCoord.v, new SavedGameParser.DoorState() );
+			}
+
+			// Augments.
+			if ( shipBlueprint.getAugments() != null ) {
+				for ( ShipBlueprint.AugmentId augId : shipBlueprint.getAugments() )
+					shipState.addAugmentId( augId.name );
+			}
+
+			// Supplies.
+			shipState.setHullAmt( shipBlueprint.getHealth().amount );
+			shipState.setFuelAmt( 20 );
+			if ( shipBlueprint.getDroneList() != null )
+				shipState.setDronePartsAmt( shipBlueprint.getDroneList().drones );
+			if ( shipBlueprint.getWeaponList() != null )
+				shipState.setMissilesAmt( shipBlueprint.getWeaponList().missiles );
+
+			gameState.setPlayerShipState( shipState );
+
+			// Sync session's redundant ship info with player ship.
+			gameState.setPlayerShipName( gameState.getPlayerShipState().getShipName() );
+			gameState.setPlayerShipBlueprintId( gameState.getPlayerShipState().getShipBlueprintId() );
+
+			//frame.loadGameState( gameState );
 		}
 }
