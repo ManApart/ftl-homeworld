@@ -28,7 +28,12 @@ public class ShipSave extends SavedGameState {
 	public ShipSave(File file) {
 		shipFilePath = file;
 		boardbtn = new JButton();
-		new ShipSaveParser().readShipSave(this);
+		try {
+			new ShipSaveParser().readShipSave(this);
+		} catch (IOException e) {
+			// Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	

@@ -80,6 +80,7 @@ public class FTLHomeworld {
 	public static void main(String[] args) {
 		File propFile = new File("ftl-homeworld.cfg");
 		
+		
 		boolean writeConfig = false;
 		Properties config = new Properties();
 		ImageIO.setUseCache(false);  // Small images don't need extra buffering.
@@ -116,7 +117,7 @@ public class FTLHomeworld {
 			// log.trace( "No FTL dats path previously set." );
 		}
 		
-
+		
 		//FTL Save Path.
 		String savePathString = config.getProperty("ftlSavePath");
 		if ( savePathString != null ) {
@@ -136,13 +137,14 @@ public class FTLHomeworld {
 		if ( homeworldSaveString != null ) {
 			// log.info( "Using FTL dats path from config: " + savePathString );
 			homeworld_save = new File(homeworldSaveString);
-			if ( isHomeworldPathValid(homeworld_save) == false ) {
+			if ( homeworld_save.exists() == false ) {
 				// log.error( "The config's ftlSavePath does not exist." );
 				homeworld_save = null;
 			}
 		} else {
 			// log.trace( "No FTL save path previously set." );
 		}
+		
 		
 		// Find/prompt for the dats path to set in the config.
 		if ( datsPath == null ) {
@@ -201,6 +203,9 @@ public class FTLHomeworld {
 		}
 		
 		// Find/prompt for the Homeworld.sav path to set in the config.
+//		System.out.println("Homeworld.sav:" + homeworld_save);
+//		System.out.println("dats path:" + datsPath);
+//		System.out.println("save folder:" + save_location);
 		if ( homeworld_save == null ) {
 			for ( File file : FTLHomeworld.getPossibleUserDataLocations("Homeworld.sav") ) {
 			      if ( file.exists() ) {
@@ -232,20 +237,6 @@ public class FTLHomeworld {
 			}
 		}
 				
-		OutputStream out = null;
-		if ( writeConfig ) {
-			try {
-				out = new FileOutputStream(propFile);
-				config.store( out, "FTL Homeworld - Config File" );
-
-			} catch (IOException e) {
-				// log.error( "Error saving config to " + propFile.getPath(), e );
-				showErrorDialog( "Error saving config to " + propFile.getPath() );
-				e.printStackTrace();
-			} finally {
-				if ( out != null ) { try { out.close(); } catch (IOException e) {e.printStackTrace();} }
-			}
-		}
 
 		try {
 			DataManager.init( datsPath ); // Parse the dats.
@@ -256,18 +247,18 @@ public class FTLHomeworld {
 			System.exit(1);
 			e.printStackTrace();
 		}
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					HomeworldFrame frame = new HomeworldFrame();
-					frame.setVisible(true);
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		//Commented out so that Homeworld.sav can be created before cargo bay is initialized
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					HomeworldFrame frame = new HomeworldFrame();
+//					frame.setVisible(true);
+//					
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
 		try {
 			DataManager.init(datsPath);
 		} catch (IOException e) {
@@ -277,20 +268,20 @@ public class FTLHomeworld {
 			// Auto-generated catch block
 			e.printStackTrace();
 		}
-		//TODO
 		if ( homeworld_save == null ) {
 			showErrorDialog( "Homeworld.sav was not found.\nFTL Homeworld will create one in the save folder" );
 			// log.debug( "No FTL dats path found, exiting." );
-			//TODO Create new Homeworld.sav
+			//properly update cfg
 			SavedGameParser parser = new SavedGameParser();
 			File homeworldFile = new File(save_location + "\\Homeworld.sav");
-			//OutputStream out = null;
-			
+						
 			SavedGameState homeSave = new SavedGameState();
 			homeSave.setPlayerShipState(new ShipState("Spacedock Storage", "PLAYER_SHIP_EASY", "kestral", "kestral", false));
+			homeSave.setPlayerShipName("Spacedock Storage");
 			createShip(homeSave, DataManager.get().getShip("PLAYER_SHIP_EASY"),false);
 			homeSave.setRebelFlagshipState(new RebelFlagshipState(new String[1]));
-			
+			homeSave.getPlayerShipState().setScrapAmt(0);
+			OutputStream out = null;
 			try {
 				out = new FileOutputStream(homeworldFile);
 				parser.writeSavedGame(out, homeSave);
@@ -314,8 +305,25 @@ public class FTLHomeworld {
 				System.exit(1);
 			}
 			
-			
+
+			if ( writeConfig ) {
+				try {
+					out = new FileOutputStream(propFile);
+					config.store( out, "FTL Homeworld - Config File" );
+
+				} catch (IOException e) {
+					// log.error( "Error saving config to " + propFile.getPath(), e );
+					showErrorDialog( "Error saving config to " + propFile.getPath() );
+					e.printStackTrace();
+				} finally {
+					if ( out != null ) { try { out.close(); } catch (IOException e) {e.printStackTrace();} }
+				}
+			}
 		}
+		//moved from runnable so cargobay can init properly
+		HomeworldFrame frame = new HomeworldFrame();
+		frame.setVisible(true);
+		
 	}
 	
 	
@@ -350,9 +358,7 @@ public class FTLHomeworld {
 		private static boolean isDatsPathValid(File path) {
 			return (path.exists() && path.isDirectory() && new File(path,"data.dat").exists());
 		}
-		private static boolean isHomeworldPathValid(File path) {
-			return (path.exists() && path.isDirectory() && new File(path,"Homeworld.sav").exists());
-		}
+
 		private static boolean isSavePathValid(File path) {
 			return (path.exists() && path.isDirectory());
 		}
@@ -468,7 +474,7 @@ public class FTLHomeworld {
 				// log.trace( "User cancelled FTL dats path selection." );
 			}
 
-			if ( f != null && isHomeworldPathValid(f) ) {
+			if ( f != null && f.exists() ) {
 				return f;
 			}
 

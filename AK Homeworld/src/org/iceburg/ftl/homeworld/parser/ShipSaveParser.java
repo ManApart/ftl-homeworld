@@ -37,7 +37,7 @@ import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 //Ships the same size
 public class ShipSaveParser extends Parser{
 	
-	public ShipSave readShipSave(ShipSave saveFile)  {
+	public ShipSave readShipSave(ShipSave saveFile) throws IOException {
 		//private static final Logger log = LogManager.getLogger(ShipSaveParser.class);
 		FileInputStream in = null;
 		InputStream layoutStream = null;

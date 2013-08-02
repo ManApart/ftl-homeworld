@@ -42,7 +42,7 @@ import javax.swing.JLabel;
 public class SpaceDockUI extends JPanel implements ActionListener {
 
 //	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
-	public ArrayList<ShipSave> myShips;
+	public static ArrayList<ShipSave> myShips;
 	HashMap<JButton,ShipSave> btnToShipMap;
 	public ShipSave currentShip;
 	public File currentFile;

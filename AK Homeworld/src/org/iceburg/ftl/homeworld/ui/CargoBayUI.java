@@ -19,6 +19,7 @@ import net.blerf.ftl.parser.SavedGameParser.ShipState;
 import net.blerf.ftl.parser.SavedGameParser.WeaponState;
 import net.blerf.ftl.xml.ShipBlueprint;
 
+import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
 import org.iceburg.ftl.homeworld.resource.ResourceClass;
 import org.iceburg.ftl.homeworld.core.FTLHomeworld;
 import org.iceburg.ftl.homeworld.model.ShipSave;
@@ -40,7 +41,9 @@ public class CargoBayUI extends JPanel {
 	ShipSave currentShip;	//the ship selected from spacedock
 	SavedGameState currentSave; //the actual save that the above represents
 	SavedGameState tradeSave; 
+	ShipSave homeSave; 
 	ShipState currentState;		//the shipstate for the currentsave	
+	ShipState tradeState;		
 	BufferedImage bg  = null;
 	ImageIcon img = null;
 	//JLabel shipName = null;
@@ -63,6 +66,8 @@ public class CargoBayUI extends JPanel {
 	}	
 	public void init(ShipSave spaceDock) {
 		this.removeAll();
+		SavedGameParser parser = new SavedGameParser();
+		ShipSaveParser shipParser = new ShipSaveParser();
 		//First, get the current ship we're working with
 		this.currentShip = spaceDock;
 		//if there is no current ship, set some null values
@@ -71,8 +76,7 @@ public class CargoBayUI extends JPanel {
 			currentSave.setPlayerShipName("No Ship Selected");
 			currentState = new ShipState("No Ship Selected", new ShipBlueprint(), false);
 		}
-		else {
-			SavedGameParser parser = new SavedGameParser();
+		else {	
 			try {
 				currentSave = parser.readSavedGame(currentShip.getshipFilePath());
 			} catch (IOException e) {
@@ -82,57 +86,38 @@ public class CargoBayUI extends JPanel {
 			
 			currentState = currentSave.getPlayerShipState();
 		}
-		//TODO -this generates a new file based on current file, I'd rather do this in FTL's main file
-		//and that way make a blank dummy file, but this may work for now
-		//This won't work because currentstate may be made up!
-//		if ( FTLHomeworld.homeworld_save == null ) {
-//			FTLHomeworld.showErrorDialog( "Homeworld.sav was not found.\nFTL Homeworld will create one in the save folder" );
-//			// log.debug( "No FTL dats path found, exiting." );
-//			// Create new Homeworld.sav
-//			SavedGameParser parser = new SavedGameParser();
-//			File homeworldFile = new File(FTLHomeworld.save_location + "\\Homeworld.sav");
-//			OutputStream out = null;
-//			//Read current save and rewrite it as dummy!
-//			if (homeworldFile.exists() == false) {
-//				try {
-//					currentSave = parser.readSavedGame(currentShip.getshipFilePath());
-//				} catch (IOException e) {
-//					// Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				//TODO - Remove weapons, drones, scrap etc before writing new save file
-//				currentSave.getPlayerShipState().setScrapAmt(0);
-//				currentSave.getPlayerShipState().setShipName("Spacedock Cargo");
-//				
-//				try {
-//					out = new FileOutputStream(homeworldFile);
-//					parser.writeSavedGame(out, currentSave);
-//					// log.info( "FTL saves located at: " + save_location.getAbsolutePath() );
-//					FTLHomeworld.homeworld_save = homeworldFile;
-//				} catch (FileNotFoundException e) {
-//					// Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (IOException e) {
-//					// Auto-generated catch block
-//					e.printStackTrace();
-//				} finally {
-//					if ( out != null ) { try { out.close(); } catch (IOException e) {e.printStackTrace();} }
-//				}
-//			}
-//			if ( FTLHomeworld.homeworld_save == null ) {
-//				FTLHomeworld.showErrorDialog( "Homeworld save file was not able to be created.\nFTL Homeworld will now exit." );
-//				// log.debug( "No Homeworld.sav found, exiting." );
-//				System.exit(1);
-//			}
-//		}
+		
+		//Next get the Homeworld save file
+			try {
+			//	homeSave = parser.readSavedGame(FTLHomeworld.homeworld_save);
+				homeSave = shipParser.readShipSave(new ShipSave(FTLHomeworld.homeworld_save));
+			} catch (IOException e) {
+				// Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		
 		//now, let's make the UI
 		setPreferredSize(new Dimension(1280, 720));
 		setLayout(null);
+		String s;
+		
+		//Create shipSelect
+		ArrayList<ShipSave> shipSelect = new ArrayList<ShipSave>();
+		shipSelect.add(homeSave);
+		shipSelect.addAll(SpaceDockUI.myShips);
+		
+		
+		//TODO
 		//display shipSelect
-		JComboBox shipSelectCB = new JComboBox();
+		
+		JComboBox shipSelectCB = new JComboBox(shipToString(shipSelect).toArray());
+		
 		shipSelectCB.setBounds(1005, 97, 125, 20);
+		
 		add(shipSelectCB);
 		
+		tradeSave = getSelectedShip(shipSelectCB, shipSelect);
 		currentShipInit();
 		tradeShipInit();
 	}
@@ -240,15 +225,33 @@ public class CargoBayUI extends JPanel {
 	}
 	public void tradeShipInit() {
 		//TODO Populate with Tradeship data
+		tradeState = tradeSave.getPlayerShipState();
 		JSpinner tradeScrapSP = new JSpinner();
 		tradeScrapSP.setBounds(110, 260, 60, 20);
+		tradeScrapSP.setValue(tradeSave.getPlayerShipState().getScrapAmt());
 		add(tradeScrapSP);
 		
 		JSpinner tradeFuelSP = new JSpinner();
 		tradeFuelSP.setBounds(148, 423, 60, 20);
+//		tradeFuelSP.setValue(tradeSave.getPlayerShipState().getFuelAmt());
 		add(tradeFuelSP);
 		
-		JComboBox tradeWeaponsCB = new JComboBox();
+		String s;
+		
+		//Convert weapons list to string array for combo box
+		ArrayList<String> tradeWeaponList = new ArrayList<String>();
+		s = new String("No Weapons!");
+		if (currentState.getWeaponList().size() > 0){
+			for (WeaponState w: currentState.getWeaponList()) {
+				s = DataManager.get().getWeapon(w.getWeaponId()).getTitle();
+				tradeWeaponList.add(s);
+			}
+		}
+		else {
+			tradeWeaponList.add(s);
+		}
+		//display weapons' names
+		JComboBox tradeWeaponsCB = new JComboBox(currentState.getWeaponList().toArray());
 		tradeWeaponsCB.setBounds(720, 550, 200, 20);
 		add(tradeWeaponsCB);
 		
@@ -268,5 +271,20 @@ public class CargoBayUI extends JPanel {
 		tradeCargoCB.setBounds(230, 550, 125, 20);
 		add(tradeCargoCB);
 		
+	}
+	//TODO
+	public ShipSave getSelectedShip(JComboBox box, ArrayList<ShipSave> list) {
+		return list.get(box.getSelectedIndex());
+	}
+	
+	public ArrayList<String> shipToString(ArrayList<ShipSave> als) {
+		ArrayList<String> al = new ArrayList<String>();
+		if (als.size() > 0){
+			for (ShipSave ss: als) {
+				String s = ss.getPlayerShipName();
+				al.add(s);
+			}
+		}
+		return al;
 	}
 }
