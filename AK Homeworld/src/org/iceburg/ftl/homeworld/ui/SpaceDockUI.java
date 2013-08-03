@@ -109,14 +109,17 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 		
 		launchbtn = new JButton("Launch FTL");
 		launchbtn.addActionListener(this);
+		launchbtn.setToolTipText("Play FTL");
 		rightPanel.add(launchbtn);
 		
 		refreshbtn = new JButton("Refresh");
 		refreshbtn.addActionListener(this);
+		refreshbtn.setToolTipText("Update Spacedock with changes from playing FTL");
 		rightPanel.add(refreshbtn);
 		
 		loadSavesbtn = new JButton("Saves Folder");
 		loadSavesbtn.addActionListener(this);
+		loadSavesbtn.setToolTipText("Choose saves folder");
 		rightPanel.add(loadSavesbtn);
 		
 		for (int i = 0; i < myShips.size(); i++) {			
@@ -154,10 +157,12 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 			
 			//add the board / dock button
 			if (myShips.get(i) == this.currentShip) {
-				myShips.get(i).boardbtn.setText("Dock");				
+				myShips.get(i).boardbtn.setText("Dock");	
+				myShips.get(i).boardbtn.setToolTipText("Store this ship to play with later");
 			}
 			else {
 				myShips.get(i).boardbtn.setText("Board");
+				myShips.get(i).boardbtn.setToolTipText("Play with this ship/set active");
 			}
 			btnToShipMap.put(myShips.get(i).boardbtn, myShips.get(i));
 			//add to a button array so we can use the index to match the button to the ship		
@@ -181,12 +186,14 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 			//connect the button to the proper ship 
 			//Thanks to KartoFlane and Vhati for finally giving me a better way to do this!
 			if (myShip == currentShip) {
-	    	   o.setText("Board");	    	   
+	    	   o.setText("Board");	
+	    	   o.setToolTipText("Play with this ship/set active");
 	    	   ShipSave.dockShip(myShip, myShips.size());
 	    	   currentShip = null;
 	    	   
 			} else {
 	    	   o.setText("Dock");
+	    	   o.setToolTipText("Store this ship to play with later");
 	          //if they have boarded a ship, dock it before boarding new one; 
 	    	   if  (currentShip != null) {
 	    		   //Find which ship has the file, dock it, and then update it's button

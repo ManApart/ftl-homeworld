@@ -277,10 +277,11 @@ public class FTLHomeworld {
 						
 			SavedGameState homeSave = new SavedGameState();
 			homeSave.setPlayerShipState(new ShipState("Spacedock Storage", "PLAYER_SHIP_EASY", "kestral", "kestral", false));
-			homeSave.setPlayerShipName("Spacedock Storage");
+			
 			createShip(homeSave, DataManager.get().getShip("PLAYER_SHIP_EASY"),false);
+			homeSave.setPlayerShipName("Spacedock Storage");
 			homeSave.setRebelFlagshipState(new RebelFlagshipState(new String[1]));
-			homeSave.getPlayerShipState().setScrapAmt(0);
+			homeSave.getPlayerShipState().setShipName("Spacedock Storage");
 			OutputStream out = null;
 			try {
 				out = new FileOutputStream(homeworldFile);
