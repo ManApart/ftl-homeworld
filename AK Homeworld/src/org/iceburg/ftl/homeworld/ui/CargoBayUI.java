@@ -45,12 +45,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 //TODO
-//Event Handlers
-//Do actual ship cargo
-//Do JSpinners
-//Add limitations to Spinners
-//Tooltips
-//If full weapons, send to cargo etc
 //Cargobay multiple items: Hull missle x2
 
 
@@ -163,12 +157,14 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		//display shipSelect	
 		shipSelectCB = new JComboBox(shipToString(shipSelect).toArray());	
 		shipSelectCB.setBounds(1002, 97, 140, 20);
+		shipSelectCB.setToolTipText("List of your ships");
 		add(shipSelectCB);
 		
 		//ShipSelect button
 		shipSelectJB = new JButton("Pick");
 		shipSelectJB.setBounds(1145, 97, 65, 20);
 		shipSelectJB.addActionListener(this);
+		shipSelectJB.setToolTipText("Set this ship as your trading partner");
 		add(shipSelectJB);
 		
 		//Save button
@@ -230,12 +226,14 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		shipName = new JLabel(currentSave.getPlayerShipName());
 		shipName.setForeground(Color.WHITE);
 		shipName.setBounds(50, 200, 97, 14);
+		shipName.setToolTipText("You're current ship");
 		add(shipName);
 		
 		
 		shipScrapSP = new JSpinner(new SpinnerNumberModel(currentState.getScrapAmt(), 0, null, 1));
 		shipScrapSP.setBounds(110, 305, 60, 20);
 		shipScrapSP.addChangeListener(listener);
+		shipScrapSP.setToolTipText("Current ship's scrap");
 		JFormattedTextField txt = ((JSpinner.NumberEditor) shipScrapSP.getEditor()).getTextField();
 		((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
 		add(shipScrapSP);
@@ -243,6 +241,7 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		shipFuelSP = new JSpinner(new SpinnerNumberModel(currentState.getFuelAmt(), 0, null, 1));
 		shipFuelSP.setBounds(33, 423, 60, 20);
 		shipFuelSP.addChangeListener(listener);
+		shipFuelSP.setToolTipText("Current ship's fuel");
 		txt = ((JSpinner.NumberEditor) shipFuelSP.getEditor()).getTextField();
 		((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
 		add(shipFuelSP);
@@ -250,53 +249,62 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		//display weapons' names
 		shipWeaponsCB = new JComboBox(weaponToString(currentState).toArray());
 		shipWeaponsCB.setBounds(430, 550, 200, 20);
+		shipWeaponsCB.setToolTipText("Current ship's weapons");
 		add(shipWeaponsCB);
 		
 		shipWeaponJB = new JButton("Send");
 		shipWeaponJB.setBounds(565, 530, 65, 20);
 		shipWeaponJB.addActionListener(this);
+		shipWeaponJB.setToolTipText("Send weapon to trade partner");
 		add(shipWeaponJB);
 			
 		
 		//display shipAugment names
 		shipAugCB = new JComboBox(augmentToString(currentState).toArray());
 		shipAugCB.setBounds(1010, 550, 200, 20);
+		shipAugCB.setToolTipText("Current ship's weapons");
 		add(shipAugCB);
 		
 		shipAugJB = new JButton("Send");
 		shipAugJB.setBounds(1145, 530, 65, 20);
 		shipAugJB.addActionListener(this);
+		shipAugJB.setToolTipText("Send augment to trade partner");
 		add(shipAugJB);
 		
 		//display shipDrone names 
 		shipDroneCB = new JComboBox(droneToString(currentState).toArray());
 		shipDroneCB.setBounds(430, 650, 200, 20);
+		shipDroneCB.setToolTipText("Current ship's drones");
 		add(shipDroneCB);
 		
 		shipDroneJB = new JButton("Send");
 		shipDroneJB.setBounds(565, 630, 65, 20);
 		shipDroneJB.addActionListener(this);
+		shipDroneJB.setToolTipText("Send drone to trade partner");
 		add(shipDroneJB);
 		
 		//display shipCrew names 
 		shipCrewCB = new JComboBox(crewToString(currentState).toArray());
 		shipCrewCB.setBounds(45, 650, 125, 20);
+		shipCrewCB.setToolTipText("Current ship's crew");
 		add(shipCrewCB);
 		
 		shipCrewJB = new JButton("Send");
 		shipCrewJB.setBounds(105, 630, 65, 20);
 		shipCrewJB.addActionListener(this);
+		shipCrewJB.setToolTipText("Send crew to trade partner");
 		add(shipCrewJB);
 		
-		//TODO display shipCargo names 
-		
+		// display shipCargo names 	
 		shipCargoCB = new JComboBox(cargoToString(currentSave).toArray());
 		shipCargoCB.setBounds(45, 550, 125, 20);
+		shipCargoCB.setToolTipText("Current ship's cargo");
 		add(shipCargoCB);
 		
 		shipCargoJB = new JButton("Send");
 		shipCargoJB.setBounds(105, 530, 65, 20);
 		shipCargoJB.addActionListener(this);
+		shipCargoJB.setToolTipText("Send cargo to trade partner (and sort)");
 		add(shipCargoJB);
 		
 	}
@@ -320,58 +328,60 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		tradeState = tradeSave.getPlayerShipState();
 	
 		tradeScrapSP = new JLabel("" + tradeSave.getPlayerShipState().getScrapAmt());
-//		tradeScrapSP = new JSpinner(new SpinnerNumberModel(tradeSave.getPlayerShipState().getScrapAmt(), 0, null, 1));
 		tradeScrapSP.setBounds(110, 260, 60, 20);
 		tradeScrapSP.setOpaque(true);
-//		JFormattedTextField txt = ((JSpinner.NumberEditor) tradeScrapSP.getEditor()).getTextField();
-//		((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
-//		tradeScrapSP.addChangeListener(listener);
+		tradeScrapSP.setToolTipText("Trade partner's scrap");
 		add(tradeScrapSP);
 		
 		tradeFuelSP = new JLabel("" + tradeSave.getPlayerShipState().getFuelAmt());
-//		tradeFuelSP = new JSpinner(new SpinnerNumberModel(tradeSave.getPlayerShipState().getFuelAmt(), 0, null, 1));
 		tradeFuelSP.setBounds(148, 423, 60, 20);
 		tradeFuelSP.setOpaque(true);
-//		JFormattedTextField txt = ((JSpinner.NumberEditor) tradeFuelSP.getEditor()).getTextField();
-//		((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
-//		tradeFuelSP.addChangeListener(listener);
+		tradeFuelSP.setToolTipText("Trade partner's fuel");
 		add(tradeFuelSP);
 		
 		//display weapons' names
 		tradeWeaponsCB = new JComboBox(weaponToString(tradeState).toArray());
 		tradeWeaponsCB.setBounds(720, 550, 200, 20);
+		tradeWeaponsCB.setToolTipText("Trade partner's weapons");
 		add(tradeWeaponsCB);
 		
 		tradeWeaponJB = new JButton("Send");
 		tradeWeaponJB.setBounds(720, 530, 65, 20);
 		tradeWeaponJB.addActionListener(this);
+		tradeWeaponJB.setToolTipText("Send weapon to current ship");
 		add(tradeWeaponJB);
 		
 		tradeAugCB = new JComboBox(augmentToString(tradeState).toArray());
 		tradeAugCB.setBounds(1010, 650, 200, 20);
+		tradeAugCB.setToolTipText("Trade partner's augments");
 		add(tradeAugCB);
 		
 		tradeAugJB = new JButton("Send");
 		tradeAugJB.setBounds(1145, 630, 65, 20);
 		tradeAugJB.addActionListener(this);
+		tradeAugJB.setToolTipText("Send augment to current ship");
 		add(tradeAugJB);
 		
 		tradeDroneCB = new JComboBox(droneToString(tradeState).toArray());
 		tradeDroneCB.setBounds(720, 650, 200, 20);
+		tradeDroneCB.setToolTipText("Trade partner's drones");
 		add(tradeDroneCB);
 		
 		tradeDroneJB = new JButton("Send");
 		tradeDroneJB.setBounds(720, 630, 65, 20);
 		tradeDroneJB.addActionListener(this);
+		tradeDroneJB.setToolTipText("Send drone to current ship");
 		add(tradeDroneJB);
 		
 		tradeCrewCB = new JComboBox(crewToString(tradeState).toArray());
 		tradeCrewCB.setBounds(230, 650, 125, 20);
+		tradeCrewCB.setToolTipText("Trade partner's crew");
 		add(tradeCrewCB);
 		
 		tradeCrewJB = new JButton("Send");
 		tradeCrewJB.setBounds(230, 630, 65, 20);
 		tradeCrewJB.addActionListener(this);
+		tradeCrewJB.setToolTipText("Send crew to current ship");
 		add(tradeCrewJB);
 		
 		// Cargo for Trade
@@ -380,9 +390,11 @@ public class CargoBayUI extends JPanel implements ActionListener {
 			String s = new String("Already Sorted");
 			al.add(s);
 			tradeCargoCB = new JComboBox(al.toArray());
+			tradeCargoCB.setToolTipText("Spacedock storage sorts items to proper category");
 		}
 		else {
 			tradeCargoCB = new JComboBox(cargoToString(tradeSave).toArray());
+			tradeCargoCB.setToolTipText("Trade partner's cargo");
 		}
 		tradeCargoCB.setBounds(230, 550, 125, 20);
 		add(tradeCargoCB);
@@ -390,6 +402,7 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		tradeCargoJB = new JButton("Send");
 		tradeCargoJB.setBounds(230, 530, 65, 20);
 		tradeCargoJB.addActionListener(this);
+		tradeCargoJB.setToolTipText("Send cargo to current ship (and sort)");
 		add(tradeCargoJB);
 		
 		
