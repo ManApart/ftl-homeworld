@@ -53,19 +53,16 @@ import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 //So the idea is to make this the main program runner, and then each 'sub program' be it's own panel
 //So this class contains the main file, and the main GUI
 //Panels:
-//-Warehouse - store items
+//-Warehouse (cargobay)- store items
 //-Hanger - Make ships
 //-Science Bay - breakdown items, then can be bought
 
 //TODO outline:
-//Start on Warehouse GUI
-//Start on warehouse parser
+//Start on cargobay GUI
+//Start on cargobay parser - seperate from UI?
+//test!
 //Add look and feel code
 
-//Look in saves folder for Homeworld.sav
-//If none found, give option to browse or create
-//On browse, store location in cfg file
-//Create Homeworld.save
 
 
 public class FTLHomeworld {
@@ -281,7 +278,7 @@ public class FTLHomeworld {
 			createShip(homeSave, DataManager.get().getShip("PLAYER_SHIP_EASY"),false);
 			homeSave.setPlayerShipName("Spacedock Storage");
 			homeSave.setRebelFlagshipState(new RebelFlagshipState(new String[1]));
-			homeSave.getPlayerShipState().setShipName("Spacedock Storage");
+			//homeSave.getPlayerShipState().setShipName("Spacedock Storage");
 			OutputStream out = null;
 			try {
 				out = new FileOutputStream(homeworldFile);
@@ -548,7 +545,7 @@ public class FTLHomeworld {
 
 			ShipLayout shipLayout = DataManager.get().getShipLayout( shipBlueprint.getLayout() );
 
-			SavedGameParser.ShipState shipState = new SavedGameParser.ShipState( "The Nameless One", shipBlueprint, auto );
+			SavedGameParser.ShipState shipState = new SavedGameParser.ShipState( "Spacedock Storage", shipBlueprint, auto );
 
 			// Systems.
 			int reservePowerCapacity = 0;
@@ -605,7 +602,7 @@ public class FTLHomeworld {
 
 			// Supplies.
 			shipState.setHullAmt( shipBlueprint.getHealth().amount );
-			shipState.setFuelAmt( 20 );
+			shipState.setFuelAmt( 0 );
 			if ( shipBlueprint.getDroneList() != null )
 				shipState.setDronePartsAmt( shipBlueprint.getDroneList().drones );
 			if ( shipBlueprint.getWeaponList() != null )

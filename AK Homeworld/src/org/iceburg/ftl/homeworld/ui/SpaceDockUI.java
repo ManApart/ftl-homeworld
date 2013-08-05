@@ -44,7 +44,7 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 //	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
 	public static ArrayList<ShipSave> myShips;
 	HashMap<JButton,ShipSave> btnToShipMap;
-	public ShipSave currentShip;
+//	public ShipSave HomeworldFrame.currentShip;
 	public File currentFile;
 	private HashMap<String,BufferedImage> imageCache;
 	BufferedImage bg  = null;
@@ -52,6 +52,7 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 	JButton loadSavesbtn = null;
 	JButton refreshbtn = null;
 	JButton launchbtn = null;
+	SpaceDockUI self = null;
 	
     @Override
     public void paintComponent(Graphics g) {
@@ -67,11 +68,11 @@ public class SpaceDockUI extends JPanel implements ActionListener {
         g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
     }
 	
-	//currentShip getter and setter
-	public void setCurrentShip( ShipSave ss1) {
-		currentShip = ss1;
+	//HomeworldFrame.currentShip getter and setter
+	public void setcurrentShip( ShipSave ss1) {
+		HomeworldFrame.currentShip = ss1;
 	}
-	public ShipSave getCurrentShip() { return currentShip; }
+	public ShipSave getcurrentShip() { return HomeworldFrame.currentShip; }
 
 
 	/**
@@ -84,12 +85,13 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 	public void init() {
 		//initialize - get ships/file to display
 		this.removeAll();
+		self = this;
 		this.myShips = ShipSaveParser.getShipsList();
 		if (myShips.size() > 0);
 		{
 			File currentFile = 
 	   				new File(FTLHomeworld.save_location + "\\continue.sav");
-			this.currentShip = ShipSaveParser.findCurrentShip(myShips, currentFile);
+			HomeworldFrame.currentShip = ShipSaveParser.findCurrentShip(myShips, currentFile);
 		}	
 		imageCache = new HashMap<String, BufferedImage>();
 		setLayout(new GridLayout(0, 2, 0, 0));
@@ -156,7 +158,7 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 			}
 			
 			//add the board / dock button
-			if (myShips.get(i) == this.currentShip) {
+			if (myShips.get(i) == HomeworldFrame.currentShip) {
 				myShips.get(i).boardbtn.setText("Dock");	
 				myShips.get(i).boardbtn.setToolTipText("Store this ship to play with later");
 			}
@@ -185,27 +187,28 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 		if (btnToShipMap.containsKey(o)) {
 			//connect the button to the proper ship 
 			//Thanks to KartoFlane and Vhati for finally giving me a better way to do this!
-			if (myShip == currentShip) {
+			if (myShip == HomeworldFrame.currentShip) {
 	    	   o.setText("Board");	
 	    	   o.setToolTipText("Play with this ship/set active");
 	    	   ShipSave.dockShip(myShip, myShips.size());
-	    	   currentShip = null;
+	    	   HomeworldFrame.currentShip = null;
 	    	   
 			} else {
 	    	   o.setText("Dock");
 	    	   o.setToolTipText("Store this ship to play with later");
 	          //if they have boarded a ship, dock it before boarding new one; 
-	    	   if  (currentShip != null) {
+	    	   if  (HomeworldFrame.currentShip != null) {
 	    		   //Find which ship has the file, dock it, and then update it's button
 	    		  // System.out.println("Already manning a ship!");
-	    		   ShipSave.dockShip(currentShip, myShips.size());
-	    		   o.setText("Board");
-	    		   currentShip = null;
+	    		  ShipSave.dockShip(HomeworldFrame.currentShip, myShips.size());
+	    		  HomeworldFrame.currentShip.boardbtn.setText("Board");
+	    		  HomeworldFrame.currentShip = null;
 	    	   }  
 	    	   ShipSave.boardShip(myShip);
-	    	   currentShip = myShip;
+	    	   HomeworldFrame.currentShip = myShip;
 		       
 			}
+			self.updateUI();
 		}
 		else {
 			if (o == loadSavesbtn) {

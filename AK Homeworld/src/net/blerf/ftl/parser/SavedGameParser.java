@@ -27,7 +27,7 @@ import net.blerf.ftl.xml.WeaponBlueprint;
 
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
-
+//Added some cargoID functions - Iceburg
 
 public class SavedGameParser extends Parser {
 
@@ -904,6 +904,12 @@ public class SavedGameParser extends Parser {
 
 		public void addCargoItemId( String cargoItemId ) {
 			cargoIdList.add( cargoItemId );
+		}
+		public void removeCargoItemId( String cargoItemId ) {
+			cargoIdList.remove( cargoItemId );
+		}
+		public void setCargoIdList( ArrayList<String> cargoList ) {
+			cargoIdList = cargoList;
 		}
 
 		public ArrayList<String> getCargoIdList() { return cargoIdList; }
@@ -2479,5 +2485,6 @@ public class SavedGameParser extends Parser {
 			return result.toString();
 		}
 	}
+
 
 }

@@ -10,6 +10,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.iceburg.ftl.homeworld.model.ShipSave;
+
 
 
 //This is the frame that runs the panels/subprograms. The main UI
@@ -22,6 +24,8 @@ public class HomeworldFrame extends JFrame {
 	public CargoBayUI cargoBay;
 	JScrollPane cargoBayPane;
 	JScrollPane spaceDockPane;
+	
+	public static ShipSave currentShip;
 
 	/**
 	 * Create the frame.
@@ -45,7 +49,7 @@ public class HomeworldFrame extends JFrame {
 		spaceDockPane.getViewport().setOpaque(false);
 		tasksPane.add( "Space Dock", spaceDockPane);
 		
-		cargoBay = new CargoBayUI(spaceDock.getCurrentShip());
+		cargoBay = new CargoBayUI();
 		cargoBayPane = new JScrollPane(cargoBay);
 
 		cargoBayPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -63,7 +67,10 @@ public class HomeworldFrame extends JFrame {
 		            JScrollPane js = (JScrollPane) tasksPane.getSelectedComponent();
 		            if (js == cargoBayPane) {
 		            	//System.out.println("found");
-		            	cargoBay.init(spaceDock.getCurrentShip());
+		            	cargoBay.init();
+		            	cargoBay.currentShipInit();
+		            	cargoBay.tradeShipInit();
+		            	
 		            }
 		            else if (js == spaceDockPane) {
 		            	//System.out.println("found");
