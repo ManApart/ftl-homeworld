@@ -33,6 +33,7 @@ import net.blerf.ftl.xml.ShipBlueprint.AugmentId;
 
 import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
 import org.iceburg.ftl.homeworld.resource.ResourceClass;
+import org.iceburg.ftl.homeworld.ui.ComboItem.WeaponItem;
 import org.iceburg.ftl.homeworld.core.FTLHomeworld;
 import org.iceburg.ftl.homeworld.model.ShipSave;
 
@@ -43,6 +44,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 //TODO
 //Cargobay multiple items: Hull missle x2
@@ -107,6 +112,10 @@ public class CargoBayUI extends JPanel implements ActionListener {
 	JComboBox tradeDroneCB = null;
 	JComboBox tradeCrewCB = null;
 	JComboBox tradeCargoCB = null;
+	
+	//Hashmaps
+	HashMap<String, Integer> shipWeaponMap;
+	HashMap<String, Integer> tradeWeaponMap;
 	
 	
 	
@@ -247,7 +256,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		add(shipFuelSP);
 		
 		//display weapons' names
-		shipWeaponsCB = new JComboBox(weaponToString(currentState).toArray());
+		shipWeaponMap = new HashMap<String, Integer>();
+		shipWeaponsCB = new JComboBox(weaponToString(currentState, shipWeaponMap).toArray());
 		shipWeaponsCB.setBounds(430, 550, 200, 20);
 		shipWeaponsCB.setToolTipText("Current ship's weapons");
 		add(shipWeaponsCB);
@@ -340,7 +350,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		add(tradeFuelSP);
 		
 		//display weapons' names
-		tradeWeaponsCB = new JComboBox(weaponToString(tradeState).toArray());
+		tradeWeaponMap = new HashMap<String, Integer>();
+		tradeWeaponsCB = new JComboBox(weaponToString(tradeState, tradeWeaponMap).toArray());
 		tradeWeaponsCB.setBounds(720, 550, 200, 20);
 		tradeWeaponsCB.setToolTipText("Trade partner's weapons");
 		add(tradeWeaponsCB);
@@ -437,18 +448,52 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		return Sgs;
 	}
 	
-	//Convert weapons list to string array for combo box
-	public ArrayList<String> weaponToString(ShipState state) {
-		ArrayList<String> al = new ArrayList<String>();	
-		String s = new String("No Weapons!");
+//	//Convert weapons list to string array for combo box
+//	public ArrayList<String> weaponToString(ShipState state) {
+//		ArrayList<String> al = new ArrayList<String>();	
+//		String s = new String("No Weapons!");
+//		if (state.getWeaponList().size() > 0){
+//			for (WeaponState w: state.getWeaponList()) {
+//				s = DataManager.get().getWeapon(w.getWeaponId()).getTitle();
+//				al.add(s);
+//			}
+//		}
+//		else {
+//			al.add(s);
+//		}
+//		return al;
+//	}	
+	//Convert weapons list to string array for combo box - use hashmap for count
+	public ArrayList<WeaponItem> weaponToString(ShipState state, HashMap<String, Integer> map) {
+		ArrayList<WeaponItem> al = new ArrayList<WeaponItem>();	
+		map = new HashMap<String, Integer>();
+		//String s = new String("No Weapons!");
 		if (state.getWeaponList().size() > 0){
 			for (WeaponState w: state.getWeaponList()) {
-				s = DataManager.get().getWeapon(w.getWeaponId()).getTitle();
-				al.add(s);
+				//multiple missles = Hull Missiles x2
+				if (map.containsKey(w.getWeaponId())) {					
+					//increase the item's count
+					map.put(w.getWeaponId(), (map.get(w.getWeaponId()) + 1));
+				}
+				else {
+					//add the first item
+					map.put(w.getWeaponId(), 1);				
+				}
+				
 			}
+			//convert hashmap to string
+			Iterator it = map.entrySet().iterator();
+		    while (it.hasNext()) {
+		        Map.Entry pairs = (Map.Entry)it.next();
+		       // System.out.println(pairs.getKey() + " = " + pairs.getValue());
+		        WeaponState w = new WeaponState((String)pairs.getKey(), false, 0);
+		        al.add(new WeaponItem(w, DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
+		        		+ " x"+ pairs.getValue()));
+		      //  it.remove(); // avoids a ConcurrentModificationException
+		    }
 		}
 		else {
-			al.add(s);
+			al.add(new WeaponItem(new WeaponState(), "No Weapons!"));
 		}
 		return al;
 	}	
@@ -529,8 +574,9 @@ public class CargoBayUI extends JPanel implements ActionListener {
 	//Trading weapons
 	public void tradeWeapon(JComboBox startBox, JComboBox destBox, JComboBox destCargo, 
 			ShipState startState, ShipState destState, 
-			SavedGameState startSave, SavedGameState destSave) {
-		if (startBox.getSelectedItem().equals("No Weapons!")){
+			SavedGameState startSave, SavedGameState destSave,
+			HashMap<String, Integer> startMap, HashMap<String, Integer> destMap) {
+		if (((WeaponItem)startBox.getSelectedItem()).getTitle().equals("No Weapons!")){
 			FTLHomeworld.showErrorDialog("No weapon to send!");
 		}
 		// only check for available room if dest is not Homeworld.sav
@@ -544,16 +590,18 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				int response = JOptionPane.showConfirmDialog(null, "No more room for weapons, send to cargo?", "Move to cargo?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if ( response == JOptionPane.YES_OPTION ){
 					int i = startBox.getSelectedIndex();
-					WeaponState w = startState.getWeaponList().get(i);
+					//	move weapon
+					WeaponState w = ((WeaponItem) startBox.getSelectedItem()).getWeapon();
 					startState.getWeaponList().remove(w);
 					destSave.addCargoItemId(w.getWeaponId());
+					//TODO update the UI
 					if (destCargo.getItemAt(0).equals("No Cargo!")) {
 						destCargo.removeItemAt(0);
 					} 
 					destCargo.addItem(startBox.getSelectedItem());
 					startBox.removeItemAt(i);
 					if (startState.getWeaponList().size() == 0) {
-						startBox.addItem("No Weapons!");
+						startBox.addItem(new WeaponItem(new WeaponState(), "No Weapons!"));
 					}
 				}
 
@@ -564,18 +612,46 @@ public class CargoBayUI extends JPanel implements ActionListener {
 			
 		}
 		else {
-			int i = startBox.getSelectedIndex();
-			WeaponState w = startState.getWeaponList().get(i);
+			//move weapon
+			WeaponState w = ((WeaponItem) startBox.getSelectedItem()).getWeapon();
 			startState.getWeaponList().remove(w);
 			destState.getWeaponList().add(w);
-			if (destBox.getItemAt(0).equals("No Weapons!")) {
+			//update UI
+			if (((WeaponItem)destBox.getItemAt(0)).getTitle().equals("No Weapons!")) {
 				destBox.removeItemAt(0);
 			}
-			destBox.addItem(startBox.getSelectedItem());
-			startBox.removeItemAt(i);
+			//Decrease count
+			//TODO Crashing here!? - not finding test in the map, why not?
+			String test = w.getWeaponId();
+			int testVal = startMap.get(test);	
+			
+			
+			if (testVal > 1) {
+				startMap.put(w.getWeaponId(), (startMap.get(w) - 1));
+				((WeaponItem) startBox.getSelectedItem()).setTitle(
+						DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
+		        		+ " x"+ startMap.get(w));
+			}
+			else {
+				startMap.remove(w);
+				startBox.remove(startBox.getSelectedIndex());
+			}
+			
+			//Increase count
+			if (destMap.get(w.getWeaponId()) > 0) {
+				destMap.put(w.getWeaponId(), (startMap.get(w) + 1));
+				((WeaponItem) startBox.getSelectedItem()).setTitle(
+						DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
+		        		+ " x"+ destMap.get(w));
+			}
+			else {
+				destMap.put(w.getWeaponId(), 1);
+				destBox.addItem(new WeaponItem(w, DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
+		        		+ " x"+ destMap.get(w)));
+			}
 			if (startState.getWeaponList().size() == 0) {
 			//	System.out.println("No Weapons!");
-				startBox.addItem("No Weapons!");
+				startBox.addItem(new WeaponItem(new WeaponState(), "No Weapons!"));
 			}
 		//	System.out.println("transfered Weapon!" + currentState.getWeaponList().size());
 		}
@@ -725,34 +801,6 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		    	currentSave.getPlayerShipState().setFuelAmt(currentVal);
 		    }
 		   // System.out.println("Spin: "+ startVal + " Label: " + otherVal); 
-		    //TODO prevent negative numbers
-		    
-		    
-		    
-		    //		     SpinnerModel spinEnd = null;
-		    //Commented out because seems to update when changing value, so switching to 1 spinnner and 1 label 
-//		    if (o == tradeScrapSP || o == shipScrapSP){
-//		    	//System.out.println("Scrap Spinner! Start: " + tradeScrapSP.getModel().getPreviousValue() + " End:" + tradeScrapSP.getModel().getValue() );
-//		    	if (o == tradeScrapSP ){
-//		    		spinStart = tradeScrapSP.getModel();
-//		    		spinEnd = shipScrapSP.getModel();
-//		    	}
-//		    	else {
-//		    		spinStart = shipScrapSP.getModel();
-//		    		spinEnd = tradeScrapSP.getModel();
-//		    	}
-//		    
-//		    }
-//		    else if (o == tradeFuelSP || o == shipFuelSP){
-//		    	//System.out.println("Fuel Spinner!");
-//		    	if (o == tradeFuelSP ){
-//		    		spinStart = tradeFuelSP.getModel();
-//		    		spinEnd = shipFuelSP.getModel();
-//		    	}
-//		    	else {
-//		    		spinStart = shipFuelSP.getModel();
-//		    		spinEnd = tradeFuelSP.getModel();
-//		    	}
 		  }
 		};
 
@@ -821,6 +869,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		
 		//Trading weapons
 		else if (o == shipWeaponJB || o== tradeWeaponJB){
+			HashMap<String, Integer> startMap;
+			HashMap<String, Integer> destMap;
 			
 			if (o == shipWeaponJB) {
 				startBox = shipWeaponsCB;
@@ -830,6 +880,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				destState = tradeState;
 				startSave = currentSave;
 				destSave = tradeSave;
+				startMap = shipWeaponMap;
+				destMap = tradeWeaponMap;
 			}
 			else {
 				startBox = tradeWeaponsCB;
@@ -839,8 +891,10 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				destState = currentState;
 				startSave = tradeSave;
 				destSave = currentSave;
+				startMap = tradeWeaponMap;
+				destMap = shipWeaponMap;
 			}
-			tradeWeapon(startBox, destBox, destCargo, startState, destState, startSave, destSave);
+			tradeWeapon(startBox, destBox, destCargo, startState, destState, startSave, destSave, startMap, destMap);
 		}
 
 		//Trading augments

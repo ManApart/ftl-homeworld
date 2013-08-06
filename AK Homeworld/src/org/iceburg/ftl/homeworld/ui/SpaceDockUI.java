@@ -44,7 +44,6 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 //	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
 	public static ArrayList<ShipSave> myShips;
 	HashMap<JButton,ShipSave> btnToShipMap;
-//	public ShipSave HomeworldFrame.currentShip;
 	public File currentFile;
 	private HashMap<String,BufferedImage> imageCache;
 	BufferedImage bg  = null;
