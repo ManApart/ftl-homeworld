@@ -51,7 +51,7 @@ import java.util.Map;
 
 //TODO
 //Cargobay multiple items: Hull missle x2
-
+//Need Missiles and drone parts!
 
 //ShipState readship() is line 247 of SavedGameParser
 public class CargoBayUI extends JPanel implements ActionListener {
@@ -261,6 +261,7 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		shipWeaponsCB.setBounds(430, 550, 200, 20);
 		shipWeaponsCB.setToolTipText("Current ship's weapons");
 		add(shipWeaponsCB);
+		//System.out.println(shipWeaponMap.toString());
 		
 		shipWeaponJB = new JButton("Send");
 		shipWeaponJB.setBounds(565, 530, 65, 20);
@@ -355,6 +356,7 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		tradeWeaponsCB.setBounds(720, 550, 200, 20);
 		tradeWeaponsCB.setToolTipText("Trade partner's weapons");
 		add(tradeWeaponsCB);
+		//System.out.println(tradeWeaponMap.toString());
 		
 		tradeWeaponJB = new JButton("Send");
 		tradeWeaponJB.setBounds(720, 530, 65, 20);
@@ -418,6 +420,34 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		
 		
 	}
+	public WeaponItem getWeaponItem(JComboBox box, String id){
+		int i = 0;
+		WeaponItem wi= null;
+		while (i < box.getItemCount()){
+			wi = (WeaponItem) box.getItemAt(i);
+			if (wi.getWeapon().getWeaponId().equals(id)){
+				return wi;
+			}
+			i = (i + 1);
+		}
+		
+		return wi;
+	}
+	//Returns the first weaponstate with this ID
+	public WeaponState getWSFromID( ArrayList<WeaponState> weaponList, String id){
+		int i = 0;
+		WeaponState ws= null;
+		while (i < weaponList.size()){
+			ws = weaponList.get(i);
+			if (ws.getWeaponId().equals(id)){
+				return ws;
+			}
+			i = (i + 1);
+		}
+		
+		return ws;
+	}
+	
 	
 	//TODO
 	//To String methods
@@ -448,6 +478,21 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		return Sgs;
 	}
 	
+	public ArrayList<WeaponItem> hashToString(HashMap<String, Integer> map){
+		ArrayList<WeaponItem> al = new ArrayList<WeaponItem>();
+		//convert hashmap to string
+		Iterator it = map.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry pairs = (Map.Entry)it.next();
+	       // System.out.println(pairs.getKey() + " = " + pairs.getValue());
+	        WeaponState w = new WeaponState((String)pairs.getKey(), false, 0);
+	        al.add(new WeaponItem(w, DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
+	        		+ " x"+ pairs.getValue()));
+	       // it.remove(); // avoids a ConcurrentModificationException
+	    }
+		return al;
+	}
+	
 //	//Convert weapons list to string array for combo box
 //	public ArrayList<String> weaponToString(ShipState state) {
 //		ArrayList<String> al = new ArrayList<String>();	
@@ -466,8 +511,6 @@ public class CargoBayUI extends JPanel implements ActionListener {
 	//Convert weapons list to string array for combo box - use hashmap for count
 	public ArrayList<WeaponItem> weaponToString(ShipState state, HashMap<String, Integer> map) {
 		ArrayList<WeaponItem> al = new ArrayList<WeaponItem>();	
-		map = new HashMap<String, Integer>();
-		//String s = new String("No Weapons!");
 		if (state.getWeaponList().size() > 0){
 			for (WeaponState w: state.getWeaponList()) {
 				//multiple missles = Hull Missiles x2
@@ -481,21 +524,14 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				}
 				
 			}
-			//convert hashmap to string
-			Iterator it = map.entrySet().iterator();
-		    while (it.hasNext()) {
-		        Map.Entry pairs = (Map.Entry)it.next();
-		       // System.out.println(pairs.getKey() + " = " + pairs.getValue());
-		        WeaponState w = new WeaponState((String)pairs.getKey(), false, 0);
-		        al.add(new WeaponItem(w, DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
-		        		+ " x"+ pairs.getValue()));
-		      //  it.remove(); // avoids a ConcurrentModificationException
-		    }
+			al = hashToString(map);
 		}
 		else {
 			al.add(new WeaponItem(new WeaponState(), "No Weapons!"));
 		}
+		//System.out.println(map.toString());
 		return al;
+		
 	}	
 	
 	//Convert augment list to string array for combo box
@@ -571,6 +607,7 @@ public class CargoBayUI extends JPanel implements ActionListener {
 	
 	//TODO bookmark: Trading methods
 	
+	//TODO Trade with weapon count
 	//Trading weapons
 	public void tradeWeapon(JComboBox startBox, JComboBox destBox, JComboBox destCargo, 
 			ShipState startState, ShipState destState, 
@@ -585,7 +622,7 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				DataManager.get().getShip(destState.getShipBlueprintId()).getWeaponSlots() 
 				&& ((destState == tradeState && tradeShip != homeSave) || destState == currentState)) 
 		{
-			//if weapons are full, but cargo has room, prompt to move to cargobay
+			//TODO if weapons are full, but cargo has room, prompt to move to cargobay
 			if (destSave.getCargoIdList().size() < 4) {
 				int response = JOptionPane.showConfirmDialog(null, "No more room for weapons, send to cargo?", "Move to cargo?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if ( response == JOptionPane.YES_OPTION ){
@@ -613,46 +650,45 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		}
 		else {
 			//move weapon
+			//WeaponState w = ((WeaponItem) startBox.getSelectedItem()).getWeapon();
 			WeaponState w = ((WeaponItem) startBox.getSelectedItem()).getWeapon();
-			startState.getWeaponList().remove(w);
+			startState.getWeaponList().remove(getWSFromID(startState.getWeaponList(), w.getWeaponId()));
 			destState.getWeaponList().add(w);
 			//update UI
 			if (((WeaponItem)destBox.getItemAt(0)).getTitle().equals("No Weapons!")) {
 				destBox.removeItemAt(0);
 			}
-			//Decrease count
-			//TODO Crashing here!? - not finding test in the map, why not?
-			String test = w.getWeaponId();
-			int testVal = startMap.get(test);	
-			
-			
-			if (testVal > 1) {
-				startMap.put(w.getWeaponId(), (startMap.get(w) - 1));
-				((WeaponItem) startBox.getSelectedItem()).setTitle(
-						DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
-		        		+ " x"+ startMap.get(w));
-			}
-			else {
-				startMap.remove(w);
-				startBox.remove(startBox.getSelectedIndex());
-			}
-			
+			//Must increase first
 			//Increase count
-			if (destMap.get(w.getWeaponId()) > 0) {
-				destMap.put(w.getWeaponId(), (startMap.get(w) + 1));
-				((WeaponItem) startBox.getSelectedItem()).setTitle(
+			if (destMap.get(w.getWeaponId()) != null) {
+				destMap.put(w.getWeaponId(), (destMap.get(w.getWeaponId()) + 1));
+				((WeaponItem) getWeaponItem(destBox, w.getWeaponId())).setTitle(
 						DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
-		        		+ " x"+ destMap.get(w));
+		        		+ " x"+ destMap.get(w.getWeaponId()));
+				destBox.updateUI();
 			}
 			else {
 				destMap.put(w.getWeaponId(), 1);
 				destBox.addItem(new WeaponItem(w, DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
-		        		+ " x"+ destMap.get(w)));
+		        		+ " x"+ destMap.get(w.getWeaponId())));
 			}
-			if (startState.getWeaponList().size() == 0) {
-			//	System.out.println("No Weapons!");
-				startBox.addItem(new WeaponItem(new WeaponState(), "No Weapons!"));
+			//Decrease count
+			if (startMap.get(w.getWeaponId()) > 1) {
+				startMap.put(w.getWeaponId(), (startMap.get(w.getWeaponId()) - 1));
+				((WeaponItem) startBox.getSelectedItem()).setTitle(
+						DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
+		        		+ " x"+ startMap.get(w.getWeaponId()));
+				startBox.updateUI();
 			}
+			else {
+				startMap.remove(w.getWeaponId());
+				startBox.removeItem(startBox.getSelectedItem());
+				if (startState.getWeaponList().size() == 0) {
+					startBox.addItem(new WeaponItem(new WeaponState(), "No Weapons!"));
+				}
+			}
+			
+		//	self.updateUI();
 		//	System.out.println("transfered Weapon!" + currentState.getWeaponList().size());
 		}
 	}
@@ -894,6 +930,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				startMap = tradeWeaponMap;
 				destMap = shipWeaponMap;
 			}
+			//System.out.println(startMap.toString());
+			//System.out.println(destMap.toString());
 			tradeWeapon(startBox, destBox, destCargo, startState, destState, startSave, destSave, startMap, destMap);
 		}
 
