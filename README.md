@@ -2,6 +2,7 @@ FTL-Homeworld
 =============
 
 FTL program for save editing in a non cheating way
+Release/progress thread: http://www.ftlgame.com/forum/viewtopic.php?f=11&t=16842&p=51426#p51426
 
 Building off my first Java program, FTL Homeworld includes the following programs:
 
