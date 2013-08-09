@@ -1,6 +1,5 @@
 package org.iceburg.ftl.homeworld.ui;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
@@ -29,13 +28,13 @@ import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 import net.blerf.ftl.parser.SavedGameParser.ShipState;
 import net.blerf.ftl.parser.SavedGameParser.WeaponState;
 import net.blerf.ftl.xml.ShipBlueprint;
-import net.blerf.ftl.xml.ShipBlueprint.AugmentId;
 
 import org.iceburg.ftl.homeworld.parser.ShipSaveParser;
 import org.iceburg.ftl.homeworld.resource.ResourceClass;
-import org.iceburg.ftl.homeworld.ui.ComboItem.WeaponItem;
 import org.iceburg.ftl.homeworld.core.FTLHomeworld;
+import org.iceburg.ftl.homeworld.model.CrewComboItem;
 import org.iceburg.ftl.homeworld.model.ShipSave;
+import org.iceburg.ftl.homeworld.model.CargoComboItem;
 
 import java.awt.Color;
 import java.io.File;
@@ -45,13 +44,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 //TODO
-//Cargobay multiple items: Hull missle x2
-//Need Missiles and drone parts!
+//Cargobay multiple items: Hull missle x2 - cargo
+//No crew check!
 
 //ShipState readship() is line 247 of SavedGameParser
 public class CargoBayUI extends JPanel implements ActionListener {
@@ -80,8 +76,12 @@ public class CargoBayUI extends JPanel implements ActionListener {
 	
 	JSpinner shipScrapSP = null;
 	JSpinner shipFuelSP = null;
+	JSpinner shipDPartsSP = null;
+	JSpinner shipMPartsSP = null;
 	JLabel tradeScrapSP = null;
 	JLabel tradeFuelSP = null;
+	JLabel tradeDPartsSP = null;
+	JLabel tradeMPartsSP = null;
 	
 	JButton shipSelectJB = null;
 	JButton saveJB = null;
@@ -91,23 +91,25 @@ public class CargoBayUI extends JPanel implements ActionListener {
 	JButton shipDroneJB = null;
 	JButton shipAugJB = null;
 	JButton shipCrewJB = null;
+	JButton shipCrewInfoJB = null;
 	JButton shipCargoJB = null;
 	
 	JButton tradeWeaponJB = null;
 	JButton tradeAugJB = null;
 	JButton tradeDroneJB = null;
 	JButton tradeCrewJB = null;
+	JButton tradeCrewInfoJB = null;
 	JButton tradeCargoJB = null;
 	
 	JComboBox shipSelectCB = null;
 	
-	JComboBox shipWeaponsCB = null;
+	JComboBox shipWeaponCB = null;
 	JComboBox shipDroneCB = null;
 	JComboBox shipAugCB = null;
 	JComboBox shipCrewCB = null;
 	JComboBox shipCargoCB = null;
 	
-	JComboBox tradeWeaponsCB = null;
+	JComboBox tradeWeaponCB = null;
 	JComboBox tradeAugCB = null;
 	JComboBox tradeDroneCB = null;
 	JComboBox tradeCrewCB = null;
@@ -115,7 +117,13 @@ public class CargoBayUI extends JPanel implements ActionListener {
 	
 	//Hashmaps
 	HashMap<String, Integer> shipWeaponMap;
+	HashMap<String, Integer> shipAugmentMap;
+	HashMap<String, Integer> shipDroneMap;
+	HashMap<String, Integer> shipCargoMap;
 	HashMap<String, Integer> tradeWeaponMap;
+	HashMap<String, Integer> tradeAugmentMap;
+	HashMap<String, Integer> tradeDroneMap;
+	HashMap<String, Integer> tradeCargoMap;
 	
 	
 	
@@ -190,6 +198,28 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		refreshJB.setToolTipText("Cancel the unsaved changes you've made");
 		add(refreshJB);
 		
+		
+		//missile count labels
+		JLabel MLabelShip = new JLabel("Missile parts:");
+		MLabelShip.setBounds(430, 550, 80, 20);
+		MLabelShip.setOpaque(true);
+		add(MLabelShip);
+		
+		JLabel MLabelTrade = new JLabel("Missile parts:");
+		MLabelTrade.setBounds(720, 550, 80, 20);
+		MLabelTrade.setOpaque(true);
+		add(MLabelTrade);
+		
+		//drone part labels
+		JLabel DLabelShip = new JLabel("Drone parts:");
+		DLabelShip.setBounds(430, 650, 75, 20);
+		DLabelShip.setOpaque(true);
+		add(DLabelShip);
+		
+		JLabel DLabelTrade = new JLabel("Drone parts:");
+		DLabelTrade.setBounds(720, 650, 75, 20);
+		DLabelTrade.setOpaque(true);
+		add(DLabelTrade);
 	}
 	
 	
@@ -201,15 +231,18 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		if (shipAugJB != null){this.remove(shipAugJB); }
 		if (shipCrewCB != null){this.remove(shipCrewCB);}
 		if (shipCrewJB != null){this.remove(shipCrewJB);}
+		if (shipCrewInfoJB != null){this.remove(shipCrewInfoJB);}
 		if (shipDroneCB != null){this.remove(shipDroneCB);}
 		if (shipDroneJB != null){this.remove(shipDroneJB);}
 		if (shipWeaponJB != null){this.remove(shipWeaponJB);}
-		if (shipWeaponsCB != null){this.remove(shipWeaponsCB);}
+		if (shipWeaponCB != null){this.remove(shipWeaponCB);}
 		if (shipCargoJB != null){this.remove(shipCargoJB);}
 		if (shipCargoCB != null){this.remove(shipCargoCB);}
 		if (shipName != null){this.remove(shipName);}
 		if (shipScrapSP != null){this.remove(shipScrapSP);}
 		if (shipFuelSP != null){this.remove(shipFuelSP);}
+		if (shipDPartsSP != null){this.remove(shipDPartsSP);}
+		if (shipMPartsSP != null){this.remove(shipMPartsSP);}
 		
 		SavedGameParser parser = new SavedGameParser();
 		//get the current ship we're working with... If there is no current ship, set some null values
@@ -257,21 +290,30 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		
 		//display weapons' names
 		shipWeaponMap = new HashMap<String, Integer>();
-		shipWeaponsCB = new JComboBox(weaponToString(currentState, shipWeaponMap).toArray());
-		shipWeaponsCB.setBounds(430, 550, 200, 20);
-		shipWeaponsCB.setToolTipText("Current ship's weapons");
-		add(shipWeaponsCB);
+		shipWeaponCB = new JComboBox(CargoComboItem.weaponToCombo(currentState, shipWeaponMap).toArray());
+		shipWeaponCB.setBounds(430, 520, 200, 20);
+		shipWeaponCB.setToolTipText("Current ship's weapons");
+		add(shipWeaponCB);
 		//System.out.println(shipWeaponMap.toString());
 		
 		shipWeaponJB = new JButton("Send");
-		shipWeaponJB.setBounds(565, 530, 65, 20);
+		shipWeaponJB.setBounds(523, 495, 65, 20);
 		shipWeaponJB.addActionListener(this);
 		shipWeaponJB.setToolTipText("Send weapon to trade partner");
 		add(shipWeaponJB);
-			
+		
+		shipMPartsSP = new JSpinner(new SpinnerNumberModel(currentState.getMissilesAmt(), 0, null, 1));
+		shipMPartsSP.setBounds(510, 550, 80, 20);
+		shipMPartsSP.addChangeListener(listener);
+		shipMPartsSP.setToolTipText("Current ship's missile count");
+		txt = ((JSpinner.NumberEditor) shipMPartsSP.getEditor()).getTextField();
+		((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
+		shipMPartsSP.setToolTipText("Current ship's missile count");
+		add(shipMPartsSP);
 		
 		//display shipAugment names
-		shipAugCB = new JComboBox(augmentToString(currentState).toArray());
+		shipAugmentMap = new HashMap<String, Integer>();
+		shipAugCB = new JComboBox(CargoComboItem.augmentToCombo(currentState, shipAugmentMap).toArray());
 		shipAugCB.setBounds(1010, 550, 200, 20);
 		shipAugCB.setToolTipText("Current ship's weapons");
 		add(shipAugCB);
@@ -283,19 +325,29 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		add(shipAugJB);
 		
 		//display shipDrone names 
-		shipDroneCB = new JComboBox(droneToString(currentState).toArray());
-		shipDroneCB.setBounds(430, 650, 200, 20);
+		shipDroneMap = new HashMap<String, Integer>();
+		shipDroneCB = new JComboBox(CargoComboItem.droneToCombo(currentState, shipDroneMap).toArray());
+		shipDroneCB.setBounds(430, 630, 200, 20);
 		shipDroneCB.setToolTipText("Current ship's drones");
 		add(shipDroneCB);
 		
 		shipDroneJB = new JButton("Send");
-		shipDroneJB.setBounds(565, 630, 65, 20);
+		shipDroneJB.setBounds(523, 606, 65, 20);
 		shipDroneJB.addActionListener(this);
 		shipDroneJB.setToolTipText("Send drone to trade partner");
 		add(shipDroneJB);
 		
+		shipDPartsSP = new JSpinner(new SpinnerNumberModel(currentState.getDronePartsAmt(), 0, null, 1));
+		shipDPartsSP.setBounds(495, 650, 80, 20);
+		shipDPartsSP.addChangeListener(listener);
+		shipDPartsSP.setToolTipText("Current ship's missile count");
+		txt = ((JSpinner.NumberEditor) shipDPartsSP.getEditor()).getTextField();
+		((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
+		shipDPartsSP.setToolTipText("Current ship's drone parts");
+		add(shipDPartsSP);
+		
 		//display shipCrew names 
-		shipCrewCB = new JComboBox(crewToString(currentState).toArray());
+		shipCrewCB = new JComboBox(CrewComboItem.crewToCombo(currentState).toArray());
 		shipCrewCB.setBounds(45, 650, 125, 20);
 		shipCrewCB.setToolTipText("Current ship's crew");
 		add(shipCrewCB);
@@ -303,11 +355,18 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		shipCrewJB = new JButton("Send");
 		shipCrewJB.setBounds(105, 630, 65, 20);
 		shipCrewJB.addActionListener(this);
-		shipCrewJB.setToolTipText("Send crew to trade partner");
+		shipCrewJB.setToolTipText("Send crew member to trade partner");
 		add(shipCrewJB);
 		
+		shipCrewInfoJB = new JButton("Info");
+		shipCrewInfoJB.setBounds(105, 670, 65, 20);
+		shipCrewInfoJB.addActionListener(this);
+		shipCrewInfoJB.setToolTipText("Get info on this crew member");
+		add(shipCrewInfoJB);
+		
 		// display shipCargo names 	
-		shipCargoCB = new JComboBox(cargoToString(currentSave).toArray());
+		shipCargoMap = new HashMap<String, Integer>();
+		shipCargoCB = new JComboBox(CargoComboItem.cargoToCombo(currentSave, shipCargoMap).toArray());
 		shipCargoCB.setBounds(45, 550, 125, 20);
 		shipCargoCB.setToolTipText("Current ship's cargo");
 		add(shipCargoCB);
@@ -325,14 +384,17 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		if (tradeAugJB != null){this.remove(tradeAugJB); }
 		if (tradeCrewCB != null){this.remove(tradeCrewCB);}
 		if (tradeCrewJB != null){this.remove(tradeCrewJB);}
+		if (tradeCrewInfoJB != null){this.remove(tradeCrewInfoJB);}
 		if (tradeDroneCB != null){this.remove(tradeDroneCB);}
 		if (tradeDroneJB != null){this.remove(tradeDroneJB);}
 		if (tradeWeaponJB != null){this.remove(tradeWeaponJB);}
-		if (tradeWeaponsCB != null){this.remove(tradeWeaponsCB);}
+		if (tradeWeaponCB != null){this.remove(tradeWeaponCB);}
 		if (tradeCargoJB != null){this.remove(tradeCargoJB);}
 		if (tradeCargoCB != null){this.remove(tradeCargoCB);}
 		if (tradeScrapSP != null){this.remove(tradeScrapSP);}
 		if (tradeFuelSP != null){this.remove(tradeFuelSP);}
+		if (tradeDPartsSP != null){this.remove(tradeDPartsSP);}
+		if (tradeMPartsSP != null){this.remove(tradeMPartsSP);}
 		
 		//Populate with Tradeship data
 		tradeSave = getSelectedShip(shipSelectCB, shipSelect);
@@ -352,19 +414,26 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		
 		//display weapons' names
 		tradeWeaponMap = new HashMap<String, Integer>();
-		tradeWeaponsCB = new JComboBox(weaponToString(tradeState, tradeWeaponMap).toArray());
-		tradeWeaponsCB.setBounds(720, 550, 200, 20);
-		tradeWeaponsCB.setToolTipText("Trade partner's weapons");
-		add(tradeWeaponsCB);
+		tradeWeaponCB = new JComboBox(CargoComboItem.weaponToCombo(tradeState, tradeWeaponMap).toArray());
+		tradeWeaponCB.setBounds(720, 520, 200, 20);
+		tradeWeaponCB.setToolTipText("Trade partner's weapons");
+		add(tradeWeaponCB);
 		//System.out.println(tradeWeaponMap.toString());
 		
 		tradeWeaponJB = new JButton("Send");
-		tradeWeaponJB.setBounds(720, 530, 65, 20);
+		tradeWeaponJB.setBounds(758, 495, 65, 20);
 		tradeWeaponJB.addActionListener(this);
 		tradeWeaponJB.setToolTipText("Send weapon to current ship");
 		add(tradeWeaponJB);
 		
-		tradeAugCB = new JComboBox(augmentToString(tradeState).toArray());
+		tradeMPartsSP = new JLabel("" + tradeSave.getPlayerShipState().getMissilesAmt());
+		tradeMPartsSP.setBounds(800, 550, 80, 20);
+		tradeMPartsSP.setOpaque(true);
+		tradeMPartsSP.setToolTipText("Trade partner's missile count");
+		add(tradeMPartsSP);
+		
+		tradeAugmentMap = new HashMap<String, Integer>();
+		tradeAugCB = new JComboBox(CargoComboItem.augmentToCombo(tradeState, tradeAugmentMap).toArray());
 		tradeAugCB.setBounds(1010, 650, 200, 20);
 		tradeAugCB.setToolTipText("Trade partner's augments");
 		add(tradeAugCB);
@@ -375,18 +444,25 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		tradeAugJB.setToolTipText("Send augment to current ship");
 		add(tradeAugJB);
 		
-		tradeDroneCB = new JComboBox(droneToString(tradeState).toArray());
-		tradeDroneCB.setBounds(720, 650, 200, 20);
+		tradeDroneMap = new HashMap<String, Integer>();
+		tradeDroneCB = new JComboBox(CargoComboItem.droneToCombo(tradeState, tradeDroneMap).toArray());
+		tradeDroneCB.setBounds(720, 630, 200, 20);
 		tradeDroneCB.setToolTipText("Trade partner's drones");
 		add(tradeDroneCB);
 		
 		tradeDroneJB = new JButton("Send");
-		tradeDroneJB.setBounds(720, 630, 65, 20);
+		tradeDroneJB.setBounds(758, 606, 65, 20);
 		tradeDroneJB.addActionListener(this);
 		tradeDroneJB.setToolTipText("Send drone to current ship");
 		add(tradeDroneJB);
 		
-		tradeCrewCB = new JComboBox(crewToString(tradeState).toArray());
+		tradeDPartsSP = new JLabel("" + tradeSave.getPlayerShipState().getDronePartsAmt());
+		tradeDPartsSP.setBounds(795, 650, 80, 20);
+		tradeDPartsSP.setOpaque(true);
+		tradeDPartsSP.setToolTipText("Trade partner's drone parts");
+		add(tradeDPartsSP);
+		
+		tradeCrewCB = new JComboBox(CrewComboItem.crewToCombo(tradeState).toArray());
 		tradeCrewCB.setBounds(230, 650, 125, 20);
 		tradeCrewCB.setToolTipText("Trade partner's crew");
 		add(tradeCrewCB);
@@ -394,8 +470,14 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		tradeCrewJB = new JButton("Send");
 		tradeCrewJB.setBounds(230, 630, 65, 20);
 		tradeCrewJB.addActionListener(this);
-		tradeCrewJB.setToolTipText("Send crew to current ship");
+		tradeCrewJB.setToolTipText("Send crew member to current ship");
 		add(tradeCrewJB);
+		
+		tradeCrewInfoJB = new JButton("Info");
+		tradeCrewInfoJB.setBounds(230, 670, 65, 20);
+		tradeCrewInfoJB.addActionListener(this);
+		tradeCrewInfoJB.setToolTipText("Get info on this crew member");
+		add(tradeCrewInfoJB);
 		
 		// Cargo for Trade
 		if (tradeShip == homeSave) {
@@ -406,7 +488,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 			tradeCargoCB.setToolTipText("Spacedock storage sorts items to proper category");
 		}
 		else {
-			tradeCargoCB = new JComboBox(cargoToString(tradeSave).toArray());
+			tradeCargoMap = new HashMap<String, Integer>();
+			tradeCargoCB = new JComboBox(CargoComboItem.cargoToCombo(tradeSave, tradeCargoMap).toArray());
 			tradeCargoCB.setToolTipText("Trade partner's cargo");
 		}
 		tradeCargoCB.setBounds(230, 550, 125, 20);
@@ -420,33 +503,7 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		
 		
 	}
-	public WeaponItem getWeaponItem(JComboBox box, String id){
-		int i = 0;
-		WeaponItem wi= null;
-		while (i < box.getItemCount()){
-			wi = (WeaponItem) box.getItemAt(i);
-			if (wi.getWeapon().getWeaponId().equals(id)){
-				return wi;
-			}
-			i = (i + 1);
-		}
-		
-		return wi;
-	}
-	//Returns the first weaponstate with this ID
-	public WeaponState getWSFromID( ArrayList<WeaponState> weaponList, String id){
-		int i = 0;
-		WeaponState ws= null;
-		while (i < weaponList.size()){
-			ws = weaponList.get(i);
-			if (ws.getWeaponId().equals(id)){
-				return ws;
-			}
-			i = (i + 1);
-		}
-		
-		return ws;
-	}
+	
 	
 	
 	//TODO
@@ -477,314 +534,144 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		//need finally?
 		return Sgs;
 	}
-	
-	public ArrayList<WeaponItem> hashToString(HashMap<String, Integer> map){
-		ArrayList<WeaponItem> al = new ArrayList<WeaponItem>();
-		//convert hashmap to string
-		Iterator it = map.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry pairs = (Map.Entry)it.next();
-	       // System.out.println(pairs.getKey() + " = " + pairs.getValue());
-	        WeaponState w = new WeaponState((String)pairs.getKey(), false, 0);
-	        al.add(new WeaponItem(w, DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
-	        		+ " x"+ pairs.getValue()));
-	       // it.remove(); // avoids a ConcurrentModificationException
-	    }
-		return al;
-	}
-	
-//	//Convert weapons list to string array for combo box
-//	public ArrayList<String> weaponToString(ShipState state) {
-//		ArrayList<String> al = new ArrayList<String>();	
-//		String s = new String("No Weapons!");
-//		if (state.getWeaponList().size() > 0){
-//			for (WeaponState w: state.getWeaponList()) {
-//				s = DataManager.get().getWeapon(w.getWeaponId()).getTitle();
-//				al.add(s);
-//			}
-//		}
-//		else {
-//			al.add(s);
-//		}
-//		return al;
-//	}	
-	//Convert weapons list to string array for combo box - use hashmap for count
-	public ArrayList<WeaponItem> weaponToString(ShipState state, HashMap<String, Integer> map) {
-		ArrayList<WeaponItem> al = new ArrayList<WeaponItem>();	
-		if (state.getWeaponList().size() > 0){
-			for (WeaponState w: state.getWeaponList()) {
-				//multiple missles = Hull Missiles x2
-				if (map.containsKey(w.getWeaponId())) {					
-					//increase the item's count
-					map.put(w.getWeaponId(), (map.get(w.getWeaponId()) + 1));
-				}
-				else {
-					//add the first item
-					map.put(w.getWeaponId(), 1);				
-				}
-				
-			}
-			al = hashToString(map);
-		}
-		else {
-			al.add(new WeaponItem(new WeaponState(), "No Weapons!"));
-		}
-		//System.out.println(map.toString());
-		return al;
 		
-	}	
-	
-	//Convert augment list to string array for combo box
-	public ArrayList<String> augmentToString(ShipState state) {
-		ArrayList<String> al = new ArrayList<String>();	
-		String s = new String("No Augments!");
-		if (state.getAugmentIdList().size() > 0){
-			for (String aug: state.getAugmentIdList()) {
-				s = DataManager.get().getAugment(aug).getTitle();;
-				al.add(s);
-			}
-		}
-		else {
-			al.add(s);
-		}
-		return al;
-	}	
-	
-	//Convert drone list to string array for combo box
-	public ArrayList<String> droneToString(ShipState state) {
-		ArrayList<String> al = new ArrayList<String>();	
-		String s = new String("No Drones!");
-		if (state.getDroneList().size() > 0){
-			for (DroneState d: state.getDroneList()) {
-				s = DataManager.get().getDrone(d.getDroneId()).getTitle();
-				al.add(s);
-			}
-		}
-		else {
-			al.add(s);
-		}
-		return al;
-	}	
-	//Convert crew list to string array for combo box
-	public ArrayList<String> crewToString(ShipState state) {
-		ArrayList<String> al = new ArrayList<String>();	
-		String s = new String("No Crew!");
-		if (state.getCrewList().size() > 0){
-			for (CrewState c: state.getCrewList()) {
-				al.add(c.getName());
-			}
-		}
-		else {
-			al.add(s);
-		}
-		return al;
-	}	
-	//Convert cargo list to string array for combo box
-	public ArrayList<String> cargoToString(SavedGameState save) {
-		ArrayList<String> al = new ArrayList<String>();	
-		String s = new String("No Cargo!");
-			if (save.getCargoIdList().size() > 0){
-				for (String st: save.getCargoIdList()) {
-					//find out what type it is and add the appropriate name to the list
-					if (DataManager.get().getAugment(st) != null) {
-						al.add(DataManager.get().getAugment(st).getTitle());
-					}
-					else if (DataManager.get().getWeapon(st) != null) {
-						al.add(DataManager.get().getWeapon(st).getTitle());
-					}
-					else if (DataManager.get().getDrone(st) != null) {
-						al.add(DataManager.get().getDrone(st).getTitle());
-					}
-					
-				}
-			}
-			else {
-				al.add(s);
-			}
 
-		return al;
-	}	
-	
-	//TODO bookmark: Trading methods
 	
 	//TODO Trade with weapon count
 	//Trading weapons
-	public void tradeWeapon(JComboBox startBox, JComboBox destBox, JComboBox destCargo, 
+	/**
+     * Trade's a cargo item between ships
+     * cargoType is 0 for weapons, 1 for augments, and 2 for drones
+     */
+	public void tradeCargo(JComboBox startBox, JComboBox destBox, JComboBox destCargo, 
 			ShipState startState, ShipState destState, 
 			SavedGameState startSave, SavedGameState destSave,
-			HashMap<String, Integer> startMap, HashMap<String, Integer> destMap) {
-		if (((WeaponItem)startBox.getSelectedItem()).getTitle().equals("No Weapons!")){
-			FTLHomeworld.showErrorDialog("No weapon to send!");
+			HashMap<String, Integer> startMap, HashMap<String, Integer> destMap,
+			int cargoType) {
+		
+		String id = ((CargoComboItem) startBox.getSelectedItem()).getId();
+		String title = null;
+		String warnText = null;
+		int destRoom = 0;
+		int availRoom = 0;
+		boolean isCargo = false;
+		
+		if (cargoType == 0){
+			title = DataManager.get().getWeapon(id).getTitle();
+			warnText = new String("Weapons");
+			destRoom = DataManager.get().getShip(destState.getShipBlueprintId()).getWeaponSlots();
+			availRoom = destState.getWeaponList().size();
+		}
+		else if (cargoType == 1) {
+			title = DataManager.get().getAugment(id).getTitle();
+			warnText = new String("Augments");
+			destRoom = 3;
+			availRoom = destState.getAugmentIdList().size();
+		}
+		else {
+			title = DataManager.get().getDrone(id).getTitle();
+			warnText = new String("Drones");
+			destRoom = DataManager.get().getShip(destState.getShipBlueprintId()).getDroneSlots();
+			availRoom = destState.getDroneList().size();
+		}
+			
+		if (((CargoComboItem)startBox.getSelectedItem()).getTitle().equals(String.format("No %s!", warnText))){
+			FTLHomeworld.showErrorDialog(String.format("No %s to send!", warnText));
+			return;
 		}
 		// only check for available room if dest is not Homeworld.sav
-		//size based on xml (weaponSlots in ShipBlueprint)
-		else if (destState.getWeaponList().size() >= 
-				DataManager.get().getShip(destState.getShipBlueprintId()).getWeaponSlots() 
+		//size based on xml (weaponSlots in ShipBlueprint)\
+		//TODO
+		else if (availRoom >= destRoom 
 				&& ((destState == tradeState && tradeShip != homeSave) || destState == currentState)) 
 		{
-			//TODO if weapons are full, but cargo has room, prompt to move to cargobay
+			//if destination is full, but cargo has room, prompt to move to cargobay
 			if (destSave.getCargoIdList().size() < 4) {
-				int response = JOptionPane.showConfirmDialog(null, "No more room for weapons, send to cargo?", "Move to cargo?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				int response = JOptionPane.showConfirmDialog(null, String.format("No more room for %s, send to cargo?", warnText), "Move to cargo?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if ( response == JOptionPane.YES_OPTION ){
-					int i = startBox.getSelectedIndex();
-					//	move weapon
-					WeaponState w = ((WeaponItem) startBox.getSelectedItem()).getWeapon();
-					startState.getWeaponList().remove(w);
-					destSave.addCargoItemId(w.getWeaponId());
-					//TODO update the UI
-					if (destCargo.getItemAt(0).equals("No Cargo!")) {
-						destCargo.removeItemAt(0);
-					} 
-					destCargo.addItem(startBox.getSelectedItem());
-					startBox.removeItemAt(i);
-					if (startState.getWeaponList().size() == 0) {
-						startBox.addItem(new WeaponItem(new WeaponState(), "No Weapons!"));
-					}
+					destBox = destCargo;
+					isCargo = true;
+				}
+				else {
+					return;
 				}
 
 			}
 			else {
-				FTLHomeworld.showErrorDialog("No room for more weapons!");
+				FTLHomeworld.showErrorDialog(String.format("No room for more %s!", warnText));
+				return;
 			}
 			
 		}
-		else {
-			//move weapon
-			//WeaponState w = ((WeaponItem) startBox.getSelectedItem()).getWeapon();
-			WeaponState w = ((WeaponItem) startBox.getSelectedItem()).getWeapon();
-			startState.getWeaponList().remove(getWSFromID(startState.getWeaponList(), w.getWeaponId()));
-			destState.getWeaponList().add(w);
-			//update UI
-			if (((WeaponItem)destBox.getItemAt(0)).getTitle().equals("No Weapons!")) {
-				destBox.removeItemAt(0);
-			}
-			//Must increase first
-			//Increase count
-			if (destMap.get(w.getWeaponId()) != null) {
-				destMap.put(w.getWeaponId(), (destMap.get(w.getWeaponId()) + 1));
-				((WeaponItem) getWeaponItem(destBox, w.getWeaponId())).setTitle(
-						DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
-		        		+ " x"+ destMap.get(w.getWeaponId()));
-				destBox.updateUI();
+		//System.out.println("Transfering cargo");
+		if (cargoType == 0){
+			WeaponState w = new WeaponState(id, false, 0);		
+			startState.getWeaponList().remove(CargoComboItem.getWSFromID(startState.getWeaponList(), id));
+			if (isCargo == false){
+				destState.getWeaponList().add(w);
 			}
 			else {
-				destMap.put(w.getWeaponId(), 1);
-				destBox.addItem(new WeaponItem(w, DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
-		        		+ " x"+ destMap.get(w.getWeaponId())));
-			}
-			//Decrease count
-			if (startMap.get(w.getWeaponId()) > 1) {
-				startMap.put(w.getWeaponId(), (startMap.get(w.getWeaponId()) - 1));
-				((WeaponItem) startBox.getSelectedItem()).setTitle(
-						DataManager.get().getWeapon(w.getWeaponId()).getTitle() 
-		        		+ " x"+ startMap.get(w.getWeaponId()));
-				startBox.updateUI();
-			}
-			else {
-				startMap.remove(w.getWeaponId());
-				startBox.removeItem(startBox.getSelectedItem());
-				if (startState.getWeaponList().size() == 0) {
-					startBox.addItem(new WeaponItem(new WeaponState(), "No Weapons!"));
-				}
+				destSave.getCargoIdList().add(id);
 			}
 			
-		//	self.updateUI();
-		//	System.out.println("transfered Weapon!" + currentState.getWeaponList().size());
 		}
-	}
-	public void tradeAug(JComboBox startBox, JComboBox destBox, JComboBox destCargo, 
-			ShipState startState, ShipState destState, 
-			SavedGameState startSave, SavedGameState destSave) {
-		if (startBox.getSelectedItem().equals("No Augments!")){
-			FTLHomeworld.showErrorDialog("No augment to send!");
-		}
-		// only check for available room if dest is not Homeworld.sav
-		else if (destState.getAugmentIdList().size() >= 3 
-				&& ((destState == tradeState && tradeShip != homeSave) || destState == currentState)) {
-			//if augments are full, but cargo has room, prompt to move to cargobay
-			if (destSave.getCargoIdList().size() < 4) {
-				int response = JOptionPane.showConfirmDialog(null, "No more room for augments, send to cargo?", "Move to cargo?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-				if ( response == JOptionPane.YES_OPTION ){
-					int i = startBox.getSelectedIndex();
-					String s = startState.getAugmentIdList().get(i);
-					startState.getAugmentIdList().remove(s);
-					destSave.addCargoItemId(s);
-					if (destCargo.getItemAt(0).equals("No Cargo!")) {
-						destCargo.removeItemAt(0);
-					}
-					destCargo.addItem(startBox.getSelectedItem());
-					startBox.removeItemAt(i);
-					if (startState.getAugmentIdList().size() == 0) {
-						startBox.addItem("No Augments!");
-					}
-				}
-
+		else if (cargoType == 1) {	
+			startState.getAugmentIdList().remove(id);
+			if (isCargo == false){
+				destState.getAugmentIdList().add(id);
 			}
 			else {
-				FTLHomeworld.showErrorDialog("No room for more augments!");
+				destSave.getCargoIdList().add(id);
 			}
 		}
 		else {
-			int i = startBox.getSelectedIndex();
-			String s = startState.getAugmentIdList().get(i);
-			startState.getAugmentIdList().remove(s);
-			destState.getAugmentIdList().add(s);
-			if (destBox.getItemAt(0).equals("No Augments!")) {
-				destBox.removeItemAt(0);
-			}
-			destBox.addItem(startBox.getSelectedItem());
-			startBox.removeItemAt(i);
-			if (startState.getAugmentIdList().size() == 0) {
-				startBox.addItem("No Augments!");
-			}
-		}
-	}
-	public void tradeDrone(JComboBox startBox, JComboBox destBox, JComboBox destCargo, 
-			ShipState startState, ShipState destState, 
-			SavedGameState startSave, SavedGameState destSave) {
-		if (startBox.getSelectedItem().equals("No Drones!")){
-			FTLHomeworld.showErrorDialog("No drone to send!");
-		}
-		// only check for available room if dest is not Homeworld.sav
-		//droneSlotes in ShipBlueprint.xml
-		else if ((destState.getDroneList().size() >= 
-				DataManager.get().getShip(destState.getShipBlueprintId()).getDroneSlots())
-				&& ((destState == tradeState && tradeShip != homeSave) || destState == currentState)) {
-			//if drones are full, but cargo has room, prompt to move to cargobay
-			if (destSave.getCargoIdList().size() < 4) {
-				int response = JOptionPane.showConfirmDialog(null, "No more room for drones, send to cargo?", "Move to cargo?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-				if ( response == JOptionPane.YES_OPTION ){
-					int i = startBox.getSelectedIndex();
-					DroneState d = startState.getDroneList().get(i);
-					startState.getDroneList().remove(d);
-					destSave.addCargoItemId(d.getDroneId());
-					if (destBox.getItemAt(0).equals("No Drones!")) {
-						destBox.removeItemAt(0);
-					}
-					destCargo.addItem(startBox.getSelectedItem());
-					startBox.removeItemAt(i);
-					if (startState.getDroneList().size() == 0) {
-						startBox.addItem("No Drones!");
-					}
-				}
-
+			DroneState d = new DroneState(id);		
+			startState.getDroneList().remove(CargoComboItem.getDSFromID(startState.getDroneList(), id));
+			if (isCargo == false){
+				destState.getDroneList().add(d);
 			}
 			else {
-				FTLHomeworld.showErrorDialog("No room for more augments!");
+				destSave.getCargoIdList().add(id);
 			}
 		}
+		
+		
+		//update UI
+		if (((CargoComboItem)destBox.getItemAt(0)).getTitle().equals(warnText) || ((CargoComboItem)destBox.getItemAt(0)).getTitle().equals("No Cargo!")) {
+			destBox.removeItemAt(0);
+		}
+		//Must increase first
+		//Increase count
+		if (destMap.get(id) != null) {
+			destMap.put(id, (destMap.get(id) + 1));
+			((CargoComboItem) CargoComboItem.getCargoItem(destBox, id)).setTitle(
+					title + " x"+ destMap.get(id));
+			destBox.updateUI();
+		}
 		else {
-			int i = startBox.getSelectedIndex();
-			DroneState d = startState.getDroneList().get(i);
-			startState.getDroneList().remove(d);
-			destState.getDroneList().add(d);
-			if (destBox.getItemAt(0).equals("No Drones!")) {
-				destBox.removeItemAt(0);
-			}
-			destBox.addItem(startBox.getSelectedItem());
-			startBox.removeItemAt(i);
-			if (startState.getDroneList().size() == 0) {
-				startBox.addItem("No Drones!");
+			destMap.put(id, 1);
+			destBox.addItem(new CargoComboItem(id, 
+					title + " x"+ destMap.get(id)));
+		}
+		//Decrease count
+		if (startMap.get(id) > 1) {
+			startMap.put(id, (startMap.get(id) - 1));
+			((CargoComboItem) startBox.getSelectedItem()).setTitle(
+					title + " x"+ startMap.get(id));
+			startBox.updateUI();
+		}
+		else {
+			startMap.remove(id);
+			startBox.removeItem(startBox.getSelectedItem());
+		//	if (startState.getWeaponList().size() == 0) {
+			if (startBox.getItemCount() == 0) {
+				if (startBox == tradeCargoCB || startBox == shipCargoCB){
+					startBox.addItem(new CargoComboItem(id, "No Cargo!"));
+				}
+				else {
+					startBox.addItem(new CargoComboItem(id, String.format("No %s!", warnText)));
+				}
+				
 			}
 		}
 	}
@@ -801,21 +688,31 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		     JLabel spinEnd = null;
 		     int otherVal = 0;
 		     int startVal = 0;
-		     boolean isScrap = false;
+		     
 
 		    if (o == shipScrapSP){
 	    		spinStart = shipScrapSP.getModel();
 	    		spinEnd = tradeScrapSP;
 	    		otherVal = tradeSave.getPlayerShipState().getScrapAmt();
 	    		startVal = currentSave.getPlayerShipState().getScrapAmt();
-	    		isScrap = true;
 		    }
 		    else if (o == shipFuelSP){
 	    		spinStart = shipFuelSP.getModel();
 	    		spinEnd = tradeFuelSP;
 	    		otherVal = tradeSave.getPlayerShipState().getFuelAmt();
 	    		startVal = currentSave.getPlayerShipState().getFuelAmt();
-	    		isScrap = false;
+		    }
+		    else if (o == shipDPartsSP){
+		    	spinStart = shipDPartsSP.getModel();
+		    	spinEnd = tradeDPartsSP;
+		    	otherVal = tradeSave.getPlayerShipState().getDronePartsAmt();
+		    	startVal = currentSave.getPlayerShipState().getDronePartsAmt();
+		    }
+		    else if (o == shipMPartsSP){
+		    	spinStart = shipMPartsSP.getModel();
+		    	spinEnd = tradeMPartsSP;
+		    	otherVal = tradeSave.getPlayerShipState().getMissilesAmt();
+		    	startVal = currentSave.getPlayerShipState().getMissilesAmt();
 		    }
 		      
 		    int currentVal = (Integer) spinStart.getValue();
@@ -828,13 +725,21 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		    }
 		    
 		    spinEnd.setText("" + otherVal);
-		    if (isScrap == true){
+		    if (o == shipScrapSP){
 		    	tradeSave.getPlayerShipState().setScrapAmt(otherVal);
 		    	currentSave.getPlayerShipState().setScrapAmt(currentVal);
 		    }
-		    else {
+		    else if (o == shipFuelSP) {
 		    	tradeSave.getPlayerShipState().setFuelAmt(otherVal);
 		    	currentSave.getPlayerShipState().setFuelAmt(currentVal);
+		    }
+		    else if (o == shipDPartsSP) {
+		    	tradeSave.getPlayerShipState().setDronePartsAmt(otherVal);
+		    	currentSave.getPlayerShipState().setDronePartsAmt(currentVal);
+		    }
+		    else if (o == shipMPartsSP) {
+		    	tradeSave.getPlayerShipState().setMissilesAmt(otherVal);
+		    	currentSave.getPlayerShipState().setMissilesAmt(currentVal);
 		    }
 		   // System.out.println("Spin: "+ startVal + " Label: " + otherVal); 
 		  }
@@ -850,6 +755,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 		ShipState destState = null;
 		SavedGameState startSave = null;
 		SavedGameState destSave = null;
+		HashMap<String, Integer> startMap = null;
+		HashMap<String, Integer> destMap = null;
 		
 	//	System.out.println("pressed: " + o.getText());
 		
@@ -901,16 +808,26 @@ public class CargoBayUI extends JPanel implements ActionListener {
 			//	System.out.println("refreshed");
 		}
 		
-		
+		else if (o == shipCrewInfoJB || o == tradeCrewInfoJB){
+			JComboBox sourceBox = null;
+			if (o == shipCrewInfoJB) {
+				sourceBox = shipCrewCB;
+			}
+			else {
+				sourceBox = tradeCrewCB;
+			}
+			CrewState cs = ((CrewComboItem)sourceBox.getSelectedItem()).getCrewState();
+			JOptionPane.showConfirmDialog(null, CrewComboItem.toStringSummary(cs),String.format("Report for crewman %s", cs.getName()), JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE);
+			
+			
+		}
 		
 		//Trading weapons
 		else if (o == shipWeaponJB || o== tradeWeaponJB){
-			HashMap<String, Integer> startMap;
-			HashMap<String, Integer> destMap;
 			
 			if (o == shipWeaponJB) {
-				startBox = shipWeaponsCB;
-				destBox = tradeWeaponsCB;
+				startBox = shipWeaponCB;
+				destBox = tradeWeaponCB;
 				destCargo = tradeCargoCB;
 				startState = currentState;
 				destState = tradeState;
@@ -920,8 +837,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				destMap = tradeWeaponMap;
 			}
 			else {
-				startBox = tradeWeaponsCB;
-				destBox = shipWeaponsCB;
+				startBox = tradeWeaponCB;
+				destBox = shipWeaponCB;
 				destCargo = shipCargoCB;
 				startState = tradeState;
 				destState = currentState;
@@ -932,7 +849,7 @@ public class CargoBayUI extends JPanel implements ActionListener {
 			}
 			//System.out.println(startMap.toString());
 			//System.out.println(destMap.toString());
-			tradeWeapon(startBox, destBox, destCargo, startState, destState, startSave, destSave, startMap, destMap);
+			tradeCargo(startBox, destBox, destCargo, startState, destState, startSave, destSave, startMap, destMap, 0);
 		}
 
 		//Trading augments
@@ -946,6 +863,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				destState = tradeState;
 				startSave = currentSave;
 				destSave = tradeSave;
+				startMap = shipAugmentMap;
+				destMap = tradeAugmentMap;
 			}
 			else {
 				startBox = tradeAugCB;
@@ -955,8 +874,10 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				destState = currentState;
 				startSave = tradeSave;
 				destSave = currentSave;
+				startMap = tradeAugmentMap;
+				destMap = shipAugmentMap;
 			}
-			tradeAug(startBox, destBox, destCargo, startState, destState, startSave, destSave);
+			tradeCargo(startBox, destBox, destCargo, startState, destState, startSave, destSave, startMap, destMap, 1);
 		}
 		//Trading drones
 		else if (o == shipDroneJB || o== tradeDroneJB){
@@ -969,6 +890,8 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				destState = tradeState;
 				startSave = currentSave;
 				destSave = tradeSave;
+				startMap = shipDroneMap;
+				destMap = tradeDroneMap;
 			}
 			else {
 				startBox = tradeDroneCB;
@@ -978,8 +901,10 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				destState = currentState;
 				startSave = tradeSave;
 				destSave = currentSave;
+				startMap = tradeDroneMap;
+				destMap = shipDroneMap;
 			}
-			tradeDrone(startBox, destBox, destCargo, startState, destState, startSave, destSave);
+			tradeCargo(startBox, destBox, destCargo, startState, destState, startSave, destSave, startMap, destMap, 2);
 		}
 		//Trading crew
 		else if (o == shipCrewJB || o== tradeCrewJB){
@@ -997,8 +922,13 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				destState = currentState;
 
 			}
-			if (startBox.getSelectedItem().equals("No Crew!")){
+			CrewComboItem selected = (CrewComboItem) startBox.getSelectedItem();
+			if (selected.getTitle().equals("No Crew!")){
 				FTLHomeworld.showErrorDialog("No crew to send!");
+			}
+			else if (startState.getCrewList().size() <= 1 
+					&& ((startState == tradeState && tradeShip != homeSave) || startState == currentState)) {
+				FTLHomeworld.showErrorDialog("At least one crew must man the ship!");
 			}
 			// only check for available room if dest is not Homeworld.sav
 			else if (destState.getCrewList().size() >= 8 
@@ -1010,184 +940,103 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				CrewState cs = startState.getCrewList().get(i);
 				startState.getCrewList().remove(cs);
 				destState.getCrewList().add(cs);
-				if (destBox.getItemAt(0).equals("No Crew!")) {
+				if (((CrewComboItem)destBox.getItemAt(0)).getTitle().equals("No Crew!")) {
 					destBox.removeItemAt(0);
 				}
-				destBox.addItem(startBox.getSelectedItem());
+				destBox.addItem(selected);
 				startBox.removeItemAt(i);
 				if (startState.getCrewList().size() == 0) {
-					startBox.addItem("No Crew!");
+					startBox.addItem(new CrewComboItem("No Crew!", new CrewState()));
 				}
 			}
 		}
-		//TODO Trading cargo
+		//Trading cargo
 		else if (o == shipCargoJB || o== tradeCargoJB){
-			JComboBox cargoBox;
-			JComboBox weaponBox;
-			JComboBox droneBox;
-			JComboBox augBox;
 			
 			if (o == shipCargoJB) {
 				startBox = shipCargoCB;
-				cargoBox = tradeCargoCB;
-				weaponBox = tradeWeaponsCB;
-				droneBox = tradeDroneCB;		
-				augBox = tradeAugCB;
-				
-				startSave = currentSave;
-				destSave = tradeSave;
 				startState = currentState;
-				destState = tradeState;
+				startSave = currentSave;
+				startMap = shipCargoMap;
 			}
 			else {
 				startBox = tradeCargoCB;
-				cargoBox = tradeCargoCB;
-				weaponBox = tradeWeaponsCB;
-				droneBox = tradeDroneCB;		
-				augBox = tradeAugCB;
-				
-				startSave = tradeSave;
-				destSave = currentSave;
 				startState = tradeState;
-				destState = currentState;
+				startSave = tradeSave;			
+				startMap = tradeCargoMap;
+				
 				
 				
 			}
-			if (startBox.getSelectedItem().equals("No Cargo!") 
-					|| startBox.getSelectedItem().equals("Already Sorted") 
-					|| startBox.getSelectedItem() == null){
+			String warn = (((CargoComboItem)startBox.getSelectedItem()).getTitle());
+			if (warn.equals("No Cargo!") 
+					|| warn.equals("Already Sorted")){
 				FTLHomeworld.showErrorDialog("No cargo to send!");
 			}
 			else {
-				int i = startBox.getSelectedIndex();
-				String id = startSave.getCargoIdList().get(i);
+				String id = ((CargoComboItem) startBox.getSelectedItem()).getId();
+				int cargoType = 0;
 				if (DataManager.get().getAugment(id) != null) {
-					String s = id; 
-					if (destState.getAugmentIdList().size() >= 3 
-							&& ((destState == tradeState && tradeShip != homeSave) || destState == currentState)) {
-						//if augments are full, but cargo has room, prompt to move to cargobay
-						if (destSave.getCargoIdList().size() < 4) {
-							int response = JOptionPane.showConfirmDialog(null, "No more room for augments, send to cargo?", "Move to cargo?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-							if ( response == JOptionPane.YES_OPTION ){
-								startSave.getCargoIdList().remove(s);
-								destSave.addCargoItemId(s);
-								if (cargoBox.getItemAt(0).equals("No Cargo!")) {
-									cargoBox.removeItemAt(0);
-								}
-								cargoBox.addItem(startBox.getSelectedItem());
-								startBox.removeItemAt(i);
-								if (startState.getAugmentIdList().size() == 0) {
-									startBox.addItem("No Cargo!");
-								}
-							}
-
-						}
-						else {
-							FTLHomeworld.showErrorDialog("No room for more augments!");
-						}
+					if (o == shipCargoJB){
+						destBox = tradeAugCB;
+						destCargo = tradeCargoCB;			
+						destState = tradeState;
+						destMap = tradeAugmentMap;
+						destSave = tradeSave;
+						cargoType = 1;
 					}
 					else {
-						startSave.removeCargoItemId(s);
-						destState.getAugmentIdList().add(s);
-						if (augBox.getItemAt(0).equals("No Augments!")) {
-							augBox.removeItemAt(0);
-						}
-						augBox.addItem(startBox.getSelectedItem());
-						startBox.removeItemAt(i);
-						if (startSave.getCargoIdList().size() == 0) {
-							startBox.addItem("No Cargo!");
-						}
+						destBox = shipAugCB;
+						destCargo = shipCargoCB;			
+						destState = currentState;
+						destMap = shipAugmentMap;
+						destSave = currentSave;
+						cargoType = 1;
 					}
+					
 				}
 				else if (DataManager.get().getDrone(id) != null) {
-					DroneState d = new DroneState();
-					d.setDroneId(id);
-					if ((destState.getDroneList().size() >= 
-							DataManager.get().getShip(destState.getShipBlueprintId()).getDroneSlots())
-							&& ((destState == tradeState && tradeShip != homeSave) || destState == currentState)) {
-						//if drones are full, but cargo has room, prompt to move to cargobay
-						if (destSave.getCargoIdList().size() < 4) {
-							int response = JOptionPane.showConfirmDialog(null, "No more room for drones, send to cargo?", "Move to cargo?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-							if ( response == JOptionPane.YES_OPTION ){
-								startSave.removeCargoItemId(id);
-								destSave.addCargoItemId(id);
-								if (cargoBox.getItemAt(0).equals("No Drones!")) {
-									cargoBox.removeItemAt(0);
-								}
-								cargoBox.addItem(startBox.getSelectedItem());
-								startBox.removeItemAt(i);
-								if (startSave.getCargoIdList().size() == 0) {
-									startBox.addItem("No Cargo!");
-								}
-							}
-
-						}
-						else {
-							FTLHomeworld.showErrorDialog("No room for more drones!");
-						}
+					if (o == shipCargoJB){
+						destBox = tradeDroneCB;
+						destCargo = tradeCargoCB;			
+						destState = tradeState;
+						destMap = tradeDroneMap;
+						destSave = tradeSave;
+						cargoType = 2;
 					}
 					else {
-						startSave.removeCargoItemId(id);
-						destSave.addCargoItemId(id);
-						if (droneBox.getItemAt(0).equals("No Drones!")) {
-							droneBox.removeItemAt(0);
-						}
-						droneBox.addItem(startBox.getSelectedItem());
-						startBox.removeItemAt(i);
-						if (startSave.getCargoIdList().size() == 0) {
-							startBox.addItem("No Cargo!");
-						}
+						destBox = shipDroneCB;
+						destCargo = shipCargoCB;			
+						destState = currentState;
+						destMap = shipDroneMap;
+						destSave = currentSave;
+						cargoType = 2;
 					}
 				}
 				else if (DataManager.get().getWeapon(id) != null) {
-					//TODO Is this a proper way to convert between blueprints and objects? Test
-					//DataManager.get().getWeapon(id)
-					WeaponState w = new WeaponState();
-					w.setWeaponId(id);
-					
-					if (destState.getWeaponList().size() >= 
-							DataManager.get().getShip(destState.getShipBlueprintId()).getWeaponSlots() 
-							&& ((destState == tradeState && tradeShip != homeSave) || destState == currentState)) 
-					{
-						//if weapons are full, but cargo has room, prompt to move to cargobay
-						if (destSave.getCargoIdList().size() < 4) {
-							int response = JOptionPane.showConfirmDialog(null, "No more room for weapons, send to cargo?", "Move to cargo?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-							if ( response == JOptionPane.YES_OPTION ){
-								startSave.removeCargoItemId(id);
-								destSave.addCargoItemId(id);
-								if (destCargo.getItemAt(0).equals("No Cargo!")) {
-									destCargo.removeItemAt(0);
-								} 
-								destCargo.addItem(startBox.getSelectedItem());
-								startBox.removeItemAt(i);
-								if (startSave.getCargoIdList().size() == 0) {
-									startBox.addItem("No Cargo!");
-								}
-							}
-
-						}
-						else {
-							FTLHomeworld.showErrorDialog("No room for more weapons!");
-						}
-						
+					if (o == shipCargoJB){
+						destBox = tradeWeaponCB;
+						destCargo = tradeCargoCB;			
+						destState = tradeState;
+						destMap = tradeWeaponMap;
+						destSave = tradeSave;
+						cargoType = 0;
 					}
 					else {
-						startSave.removeCargoItemId(id);
-						destState.getWeaponList().add(w);
-						if (weaponBox.getItemAt(0).equals("No Weapons!")) {
-							weaponBox.removeItemAt(0);
-						}
-						weaponBox.addItem(startBox.getSelectedItem());
-						startBox.removeItemAt(i);
-						if (startSave.getCargoIdList().size() == 0) {
-							startBox.addItem("No Cargo!");
-						}
+						destBox = shipWeaponCB;
+						destCargo = shipCargoCB;			
+						destState = currentState;
+						destMap = shipWeaponMap;
+						destSave = currentSave;
+						cargoType = 0;
 					}
 				}
 				
 				else {
 					FTLHomeworld.showErrorDialog("Cargo Item not found!");
+					return;
 				}
+				tradeCargo(startBox, destBox, destCargo, startState, destState, startSave, destSave, startMap, destMap, cargoType);
 			}
 			
 		}

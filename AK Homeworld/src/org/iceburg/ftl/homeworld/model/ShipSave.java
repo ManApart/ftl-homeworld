@@ -63,10 +63,6 @@ public class ShipSave extends SavedGameState {
 			i = (i + 1);
 		}
 		ss1.setshipFilePath(newFile);
-//		if (i > 50) {
-//			FTLHomeworld.showErrorDialog("Over 50 ships, no room means the dock ship failed!");
-//			ss1.setshipFilePath(oldFile);
-//		}
 		return success;
 	}
 	

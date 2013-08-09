@@ -5,8 +5,15 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 import net.blerf.ftl.parser.DataManager;
+import net.blerf.ftl.parser.SavedGameParser;
+import net.blerf.ftl.parser.SavedGameParser.CrewState;
+import net.blerf.ftl.parser.SavedGameParser.DroneState;
+import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
+import net.blerf.ftl.parser.SavedGameParser.ShipState;
+import net.blerf.ftl.parser.SavedGameParser.WeaponState;
 import net.blerf.ftl.xml.ShipBlueprint;
 
 import org.iceburg.ftl.homeworld.core.FTLHomeworld;
@@ -28,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -44,6 +50,7 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 //	private static final Logger log = LogManager.getLogger(SpaceDockUI.class);
 	public static ArrayList<ShipSave> myShips;
 	HashMap<JButton,ShipSave> btnToShipMap;
+	HashMap<JButton,ShipSave> imageToShipMap;
 	public File currentFile;
 	private HashMap<String,BufferedImage> imageCache;
 	BufferedImage bg  = null;
@@ -95,6 +102,7 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 		imageCache = new HashMap<String, BufferedImage>();
 		setLayout(new GridLayout(0, 2, 0, 0));
 		btnToShipMap = new HashMap<JButton, ShipSave>();
+		imageToShipMap = new HashMap<JButton, ShipSave>();
 		
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new GridLayout(0, 2, 0, 0));
@@ -148,7 +156,13 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 			}
 			
 			BufferedImage baseImage = getResourceImage("img/ship/"+ ship.getGraphicsBaseName() +"_base.png", true);
-			JLabel lblShipID = new JLabel("", new ImageIcon(baseImage), JLabel.CENTER);
+		//	JLabel lblShipID = new JLabel("", new ImageIcon(baseImage), JLabel.CENTER);
+			JButton lblShipID = new JButton("", new ImageIcon(baseImage));
+			lblShipID.setOpaque(false);
+			lblShipID.setContentAreaFilled(false);
+			lblShipID.setBorderPainted(false);
+			lblShipID.addActionListener(this);
+			imageToShipMap.put(lblShipID, myShips.get(i));
 			loopPanel.add(lblShipID);
 			
 			//add rigid space below picture so buttons line up
@@ -224,7 +238,77 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 			else if (o == launchbtn) {
 				FTLHomeworld.launchFTL();
 			}
-		}	
+		
+			//else, it's a ship image being listened to
+			else {
+				o.setFocusPainted(false);
+				myShip = imageToShipMap.get(o);
+				//Get the save file
+				SavedGameParser parser = new SavedGameParser();
+				SavedGameState sgs = null;
+				try {
+					sgs = parser.readSavedGame(myShip.getshipFilePath());
+				} catch (IOException e) {
+					// Auto-generated catch block
+					e.printStackTrace();
+				}
+				//System.out.println(sgs.getPlayerShipState().toString());
+				JOptionPane.showConfirmDialog(null, shipSummaryString(sgs),String.format("Report for ship %s", sgs.getPlayerShipName()), JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE);
+			}
+			
+		}
+	}
+	
+	public String shipSummaryString(SavedGameState sgs){
+		ShipState state = sgs.getPlayerShipState();
+		ShipBlueprint shipBlueprint = DataManager.get().getShip(state.getShipBlueprintId());
+		ShipBlueprint.SystemList blueprintSystems = shipBlueprint.getSystemList();
+
+//		ShipLayout shipLayout = DataManager.get().getShipLayout(shipLayoutId);
+//		if ( shipLayout == null )
+//			throw new RuntimeException( String.format("Could not find layout for%s ship: %s", (auto ? " auto" : ""), shipName) );
+
+		StringBuilder result = new StringBuilder();
+		boolean first = true;
+		result.append("Supplies...\n");
+		result.append(String.format("Hull:        %3d\n", state.getHullAmt()));
+		result.append(String.format("Fuel:        %3d\n", state.getFuelAmt()));
+		result.append(String.format("Drone Parts: %3d\n", state.getDronePartsAmt()));
+		result.append(String.format("Missiles:    %3d\n", state.getMissilesAmt()));
+		result.append(String.format("Scrap:       %3d\n", state.getScrapAmt()));
+
+		
+		result.append("\nCrew...\n");
+		first = true;
+		for (CrewState c : state.getCrewList()) {
+			if (first) { first = false; }
+			else { result.append(",\n"); }
+			result.append(c.getName());
+		}
+
+		result.append("\n\nWeapons...\n");
+		first = true;
+		for (WeaponState w : state.getWeaponList()) {
+			if (first) { first = false; }
+			else { result.append(",\n"); }
+			result.append(DataManager.get().getWeapon(w.getWeaponId()).getTitle());
+		}
+
+		result.append("\n\nDrones...\n");
+		first = true;
+		for (DroneState d : state.getDroneList()) {
+			if (first) { first = false; }
+			else { result.append(",\n"); }
+			result.append(DataManager.get().getDrone(d.getDroneId()).getTitle());
+		}
+
+		result.append("\n\nAugments...\n");
+		for (String augmentId : state.getAugmentIdList() ) {
+			//result.append(String.format("AugmentId: %s\n", augmentId));
+			result.append(DataManager.get().getAugment(augmentId).getTitle());
+		}
+		
+		return result.toString();
 	}
 	
 	

@@ -1,16 +1,13 @@
 package org.iceburg.ftl.homeworld.core;
 
-import java.awt.EventQueue;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import net.blerf.ftl.model.ShipLayout;
-import net.blerf.ftl.model.ShipLayout.DoorCoordinate;
 import net.blerf.ftl.parser.DataManager;
 import net.blerf.ftl.parser.SavedGameParser;
-import net.blerf.ftl.parser.SavedGameParser.DoorState;
 import net.blerf.ftl.parser.SavedGameParser.RebelFlagshipState;
 import net.blerf.ftl.parser.SavedGameParser.SavedGameState;
 import net.blerf.ftl.parser.SavedGameParser.ShipState;
@@ -26,12 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 import javax.xml.bind.JAXBException;
@@ -39,7 +32,6 @@ import javax.xml.bind.JAXBException;
 //import org.apache.log4j.LogManager;
 //import org.apache.log4j.Logger;
 import org.iceburg.ftl.homeworld.ui.HomeworldFrame;
-import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 
 //CREDITS:
 //Credit to by Vhati and ComaToes for their FTLEditor and allowing me to use their source
@@ -58,9 +50,8 @@ import org.iceburg.ftl.homeworld.ui.SpaceDockUI;
 //-Science Bay - breakdown items, then can be bought
 
 //TODO outline:
-//Start on cargobay GUI
-//Start on cargobay parser - seperate from UI?
 //test!
+//Not creating config file?
 //Add look and feel code
 
 
@@ -91,6 +82,7 @@ public class FTLHomeworld {
 				config.load( in );
 			} else {
 				writeConfig = true; // Create a new cfg, but only if necessary.
+				//System.out.println("Config doesn't exist, writing at the end");
 			}
 		} catch (IOException e) {
 			// log.error( "Error loading config.", e );
@@ -302,27 +294,30 @@ public class FTLHomeworld {
 				// log.debug( "No Homeworld.sav found, exiting." );
 				System.exit(1);
 			}
+		}
 			
 
-			if ( writeConfig ) {
-				try {
-					out = new FileOutputStream(propFile);
-					config.store( out, "FTL Homeworld - Config File" );
+		if ( writeConfig ) {
+			//System.out.println("Attempting to write config!");
+			OutputStream out = null;
+			try {
+				out = new FileOutputStream(propFile);
+				config.store( out, "FTL Homeworld - Config File" );
 
-				} catch (IOException e) {
-					// log.error( "Error saving config to " + propFile.getPath(), e );
-					showErrorDialog( "Error saving config to " + propFile.getPath() );
-					e.printStackTrace();
-				} finally {
-					if ( out != null ) { try { out.close(); } catch (IOException e) {e.printStackTrace();} }
-				}
+			} catch (IOException e) {
+				// log.error( "Error saving config to " + propFile.getPath(), e );
+				showErrorDialog( "Error saving config to " + propFile.getPath() );
+				e.printStackTrace();
+			} finally {
+				if ( out != null ) { try { out.close(); } catch (IOException e) {e.printStackTrace();} }
 			}
 		}
-		//moved from runnable so cargobay can init properly
-		HomeworldFrame frame = new HomeworldFrame();
-		frame.setVisible(true);
-		
+	
+	//moved from runnable so cargobay can init properly
+	HomeworldFrame frame = new HomeworldFrame();
+	frame.setVisible(true);
 	}
+	
 	
 	
 	
@@ -364,7 +359,7 @@ public class FTLHomeworld {
 		private static File promptForFtlPath() {
 			File ftlPath = null;
 
-			String message = "FTL Profile Editor uses images and data from FTL,\n";
+			String message = "FTL Homeworld uses images and data from FTL,\n";
 			message += "but the path to FTL's resources could not be guessed.\n\n";
 			message += "You will now be prompted to locate FTL manually.\n";
 			message += "Select '(FTL dir)/resources/data.dat'.\n";
