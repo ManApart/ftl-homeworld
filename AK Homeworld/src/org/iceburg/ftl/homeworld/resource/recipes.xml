@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Augment Recipes -->
+
+<recipe name="ION_ARMOR">
+	<cost>60</cost>
+	<ingredient1>shield_generator</ingredient1>
+	<ingredient2></ingredient2>
+	<ingredient3></ingredient3>
+	<unlocked>true</unlocked>
+</recipe>
+
+
+<!-- Ingredients -->
+
+<ingredient name="shield_generator">
+	<title>Shield Generator</title>
+</ingredient>

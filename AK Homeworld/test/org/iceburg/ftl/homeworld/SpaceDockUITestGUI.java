@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
 
 public class SpaceDockUITestGUI {
 
@@ -57,7 +58,6 @@ public class SpaceDockUITestGUI {
 		frmSpaceDock.setTitle("Space Dock");
 		frmSpaceDock.setBounds(100, 100, 450, 300);
 		frmSpaceDock.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmSpaceDock.getContentPane().setLayout(new GridLayout(0, 1, 0, 0));
 		
 		
 		
@@ -65,6 +65,7 @@ public class SpaceDockUITestGUI {
 		//for (int i = 0; i < myShips.length; i++) {			
 		//create panel
 		String panelName = ("shipPanel" + i);
+		frmSpaceDock.getContentPane().setLayout(new BorderLayout(0, 0));
 		JPanel loopPanel = new JPanel();
 		frmSpaceDock.getContentPane().add(loopPanel);
 		

@@ -2,6 +2,7 @@ package org.iceburg.ftl.homeworld.core;
 
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -15,6 +16,7 @@ import net.blerf.ftl.parser.SavedGameParser.SystemType;
 import net.blerf.ftl.xml.ShipBlueprint;
 import net.blerf.ftl.xml.SystemBlueprint;
 
+import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,6 +33,7 @@ import javax.xml.bind.JAXBException;
 
 //import org.apache.log4j.LogManager;
 //import org.apache.log4j.Logger;
+import org.iceburg.ftl.homeworld.resource.ResourceClass;
 import org.iceburg.ftl.homeworld.ui.HomeworldFrame;
 
 //CREDITS:
@@ -67,7 +70,6 @@ public class FTLHomeworld {
 	 */
 	public static void main(String[] args) {
 		File propFile = new File("ftl-homeworld.cfg");
-		
 		
 		boolean writeConfig = false;
 		Properties config = new Properties();

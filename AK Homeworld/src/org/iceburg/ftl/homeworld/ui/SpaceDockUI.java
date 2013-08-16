@@ -60,19 +60,19 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 	JButton launchbtn = null;
 	SpaceDockUI self = null;
 	
-    @Override
-    public void paintComponent(Graphics g) {
-		//bg = ImageIO.read(new File("./resource/SpaceDockSplash.png")); //this guy worked in eclipse but not in jar
-		img = new ImageIcon((new ResourceClass()).getClass().getResource("SpaceDockSplash.png"));
-		bg = new BufferedImage(
-		img.getIconWidth(),
-		img.getIconHeight(),
-		BufferedImage.TYPE_INT_RGB);
-		Graphics gg = bg.createGraphics();
-		img.paintIcon(null, gg, 0,0);
-		gg.dispose();
-        g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
-    }
+//    @Override
+//    public void paintComponent(Graphics g) {
+//		//bg = ImageIO.read(new File("./resource/SpaceDockSplash.png")); //this guy worked in eclipse but not in jar
+//		img = new ImageIcon((new ResourceClass()).getClass().getResource("SpaceDockSplash.png"));
+//		bg = new BufferedImage(
+//		img.getIconWidth(),
+//		img.getIconHeight(),
+//		BufferedImage.TYPE_INT_RGB);
+//		Graphics gg = bg.createGraphics();
+//		img.paintIcon(null, gg, 0,0);
+//		gg.dispose();
+//        g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
+//    }
 	
 	//HomeworldFrame.currentShip getter and setter
 	public void setcurrentShip( ShipSave ss1) {
@@ -103,6 +103,7 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 		setLayout(new GridLayout(0, 2, 0, 0));
 		btnToShipMap = new HashMap<JButton, ShipSave>();
 		imageToShipMap = new HashMap<JButton, ShipSave>();
+		setOpaque(false);
 		
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new GridLayout(0, 2, 0, 0));
@@ -303,7 +304,10 @@ public class SpaceDockUI extends JPanel implements ActionListener {
 		}
 
 		result.append("\n\nAugments...\n");
+		first = true;
 		for (String augmentId : state.getAugmentIdList() ) {
+			if (first) { first = false; }
+			else { result.append(",\n"); }
 			//result.append(String.format("AugmentId: %s\n", augmentId));
 			result.append(DataManager.get().getAugment(augmentId).getTitle());
 		}
