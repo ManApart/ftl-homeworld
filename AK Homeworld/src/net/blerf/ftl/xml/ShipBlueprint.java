@@ -29,17 +29,22 @@ public class ShipBlueprint {
 	
 	private SystemList systemList;
 	private Health health;
-	private MaxPower maxPower;
+	private MaxPower maxPower;   // Initial reserve power capacity.
+
 	@XmlElement(required=false)  // Not present in autoBlueprints.xml.
 	private Integer weaponSlots, droneSlots;
+
 	@XmlElement(required=false)
 	private WeaponList weaponList;
+
 	@XmlElement(name="aug",required=false)
 	private List<AugmentId> augmentIds;
+
 	@XmlElement(required=false)
 	private DroneList droneList;
 
 	private Object crewCount;  // TODO: model
+
 	@XmlElement(required=false)
 	private Object boardingAI;  // TODO: model
 	
@@ -75,13 +80,22 @@ public class ShipBlueprint {
 		public static class SystemRoom {
 			
 			@XmlAttribute
-			private int power;
+			private int power;         // Minimum random system capacity.
+			                           // Systems will try to be fully powered
+			                           // unless the ship's reserve is
+			                           // insufficient.
 			@XmlAttribute(name="max",required=false)
-			private Integer maxPower;  // Overrides SystemBlueprint's maxPower.
+			private Integer maxPower;  // Maximum random system capacity.
+			                           // Not capped by SystemBlueprint's maxPower.
+
 			@XmlAttribute(name="room")
 			private int roomId;
 			@XmlAttribute(required=false)
-			private Boolean start;  // Treat null omissions as as true.
+			private Boolean start;     // Whether this system it pre-installed.
+			                           // Treat null omissions as as true.
+			                           // On randomly generated ships, false
+			                           // means it's sometimes present.
+
 			@XmlAttribute(required=false)
 			private String img;
 			@XmlElement(required=false)
@@ -150,7 +164,15 @@ public class ShipBlueprint {
 		private SystemRoom cloakRoom;  // lol :)
 		@XmlElement(name="artillery",required=false)
 		private List<SystemRoom> artilleryRooms;
-		
+		@XmlElement(name="clonebay")
+		private SystemRoom cloneRoom;
+		@XmlElement(name="hacking")
+		private SystemRoom hackRoom;
+		@XmlElement(name="mind")
+		private SystemRoom mindRoom;
+		@XmlElement(name="battery")
+		private SystemRoom batteryRoom;
+
 		public SystemRoom[] getSystemRooms() {
 			SystemRoom[] rooms = new SystemRoom[] { pilotRoom, doorsRoom, sensorsRoom, medicalRoom, lifeSupportRoom, shieldRoom, 
 					engineRoom, weaponRoom, droneRoom, teleporterRoom, cloakRoom };
@@ -235,6 +257,30 @@ public class ShipBlueprint {
 		public void setArtilleryRooms( List<SystemRoom> artilleryRooms ) {
 			this.artilleryRooms = artilleryRooms;
 		}
+		public SystemRoom getCloneRoom() {
+			return cloneRoom;
+		}
+		public void setCloneRoom( SystemRoom cloneRoom ) {
+			this.cloneRoom = cloneRoom;
+		}
+		public SystemRoom getHackRoom() {
+			return hackRoom;
+		}
+		public void setHackRoom( SystemRoom hackRoom ) {
+			this.hackRoom = hackRoom;
+		}
+		public SystemRoom getMindRoom() {
+			return mindRoom;
+		}
+		public void setMindRoom( SystemRoom mindRoom ) {
+			this.mindRoom = mindRoom;
+		}
+		public SystemRoom getBatteryRoom() {
+			return batteryRoom;
+		}
+		public void setBatteryRoom( SystemRoom batteryRoom ) {
+			this.batteryRoom = batteryRoom;
+		}
 
 		/**
 		 * Returns SystemRooms, or null if not present.
@@ -254,6 +300,11 @@ public class ShipBlueprint {
 			else if ( SystemType.DRONE_CTRL.equals(systemType) ) systemRoom = getDroneRoom();
 			else if ( SystemType.TELEPORTER.equals(systemType) ) systemRoom = getTeleporterRoom();
 			else if ( SystemType.CLOAKING.equals(systemType) ) systemRoom = getCloakRoom();
+			else if ( SystemType.BATTERY.equals(systemType) ) systemRoom = getBatteryRoom();
+			else if ( SystemType.CLONEBAY.equals(systemType) ) systemRoom = getCloneRoom();
+			else if ( SystemType.MIND.equals(systemType) ) systemRoom = getMindRoom();
+			else if ( SystemType.HACKING.equals(systemType) ) systemRoom = getHackRoom();
+
 			if ( systemRoom != null ) return new SystemList.SystemRoom[] { systemRoom };
 
 			if ( SystemType.ARTILLERY.equals(systemType) ) {
@@ -272,6 +323,8 @@ public class ShipBlueprint {
 
 		/**
 		 * Returns the SystemType in a given room, or null.
+		 *
+		 * TODO: Make this return multiple SystemTypes (ex: medbay/clonebay).
 		 */
 		public SystemType getSystemTypeByRoomId( int roomId ) {
 			for ( SystemType systemType : SystemType.values() ) {
