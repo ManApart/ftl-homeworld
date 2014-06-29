@@ -263,17 +263,18 @@ public class CargoBayUI extends JPanel implements ActionListener {
 				e.printStackTrace();
 			}
 			currentState = currentSave.getPlayerShipState();
+			//current pic
+			if (currentPic != null){
+				remove(currentPic);
+				currentPic = null;
+			}
+			BufferedImage i = parent.getResourceImage("img/ship/"
+					+ DataManager.get().getShips().get(currentSave.getPlayerShipBlueprintId()).getGraphicsBaseName() + "_base.png", false);
+			currentPic = new JLabel(new ImageIcon(i));
+			currentPic.setBounds(270, 0, i.getWidth(), i.getHeight());
+			add(currentPic);
 		}
-		//current pic
-		if (currentPic != null){
-			remove(currentPic);
-			currentPic = null;
-		}
-		BufferedImage i = parent.getResourceImage("img/ship/"
-				+ DataManager.get().getShips().get(currentSave.getPlayerShipBlueprintId()).getGraphicsBaseName() + "_base.png", false);
-		currentPic = new JLabel(new ImageIcon(i));
-		currentPic.setBounds(270, 0, i.getWidth(), i.getHeight());
-		add(currentPic);
+		
 		// Populate with currentSave Data
 		shipName = new JLabel(currentSave.getPlayerShipName());
 		shipName.setForeground(Color.WHITE);

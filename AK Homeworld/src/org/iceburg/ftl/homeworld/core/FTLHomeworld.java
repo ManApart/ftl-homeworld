@@ -77,7 +77,7 @@ public class FTLHomeworld {
 	public static File datsPath = null;
 	public static SavedGameParser savedGameParser;
 	public static final String APP_NAME = "FTL Homeworld - AE";
-	private static final float APP_VERSION = (float) 3.0;
+	private static final float APP_VERSION = (float) 3.1;
 	private static final Logger log = LogManager.getLogger(FTLHomeworld.class);
 
 	/**
